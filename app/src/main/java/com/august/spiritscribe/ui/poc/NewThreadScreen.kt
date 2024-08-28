@@ -21,6 +21,7 @@ import androidx.compose.material.icons.outlined.MailOutline
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -34,11 +35,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.august.spiritscribe.R
 import com.august.spiritscribe.ui.theme.AppTheme
+import com.august.spiritscribe.ui.theme.backgroundDark
+import com.august.spiritscribe.ui.theme.primaryDark
 
 @Composable
 fun NewThreadItem() {
-    var input: String by remember { mutableStateOf("Start a Thread ...") }
-    Column(modifier = Modifier.wrapContentHeight()) {
+    var input: String by remember { mutableStateOf("") }
+    Column(
+        modifier = Modifier
+            .wrapContentHeight()
+            .background(color = Color.White)
+            .padding(16.dp)
+    ) {
         Row {
             Column {
                 Image(
@@ -57,38 +65,57 @@ fun NewThreadItem() {
                 TextField(
                     value = input,
                     onValueChange = { input = it },
-                    modifier = Modifier.background(color = Color.Transparent),
+                    label = { Text(text = "Start a thread ...", color = Color.LightGray) },
+                    colors = TextFieldDefaults.colors().copy(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedTextColor = primaryDark,
+                        focusedIndicatorColor = Color.Transparent,
+                        errorIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                    ),
                 )
                 Spacer(Modifier.weight(1f))
-                Row(modifier = Modifier.padding(top = 16.dp)){
+                Row(modifier = Modifier.padding(top = 16.dp)) {
                     Icon(
                         imageVector = Icons.Outlined.LocationOn,
                         contentDescription = null,
-                        modifier = Modifier.padding(end = 4.dp).size(36.dp),
+                        modifier = Modifier
+                            .padding(end = 4.dp)
+                            .size(24.dp),
                         tint = Color.LightGray
                     )
                     Icon(
                         imageVector = Icons.Outlined.Info,
                         contentDescription = null,
-                        modifier = Modifier.padding(horizontal = 4.dp).size(36.dp),
+                        modifier = Modifier
+                            .padding(horizontal = 4.dp)
+                            .size(24.dp),
                         tint = Color.LightGray
                     )
                     Icon(
                         imageVector = Icons.Outlined.MailOutline,
                         contentDescription = null,
-                        modifier = Modifier.padding(horizontal = 4.dp).size(36.dp),
+                        modifier = Modifier
+                            .padding(horizontal = 4.dp)
+                            .size(24.dp),
                         tint = Color.LightGray
                     )
                     Icon(
                         imageVector = Icons.Outlined.DateRange,
                         contentDescription = null,
-                        modifier = Modifier.padding(horizontal = 4.dp).size(36.dp),
+                        modifier = Modifier
+                            .padding(horizontal = 4.dp)
+                            .size(24.dp),
                         tint = Color.LightGray
                     )
                     Icon(
                         imageVector = Icons.Outlined.AccountCircle,
                         contentDescription = null,
-                        modifier = Modifier.padding(horizontal = 4.dp).size(36.dp),
+                        modifier = Modifier
+                            .padding(horizontal = 4.dp)
+                            .size(24.dp),
                         tint = Color.LightGray
                     )
                 }
