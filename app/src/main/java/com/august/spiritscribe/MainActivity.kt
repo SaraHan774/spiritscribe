@@ -5,18 +5,22 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
 import com.august.spiritscribe.ui.theme.AppTheme
 
 class MainActivity : ComponentActivity() {
@@ -35,35 +39,32 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun App() {
+    val navHostController = rememberNavController()
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        topBar = {
-            TopAppBar(
-                colors = topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                ),
-                title = {
-                    Text("SpiritScribe")
+        bottomBar = {
+            BottomAppBar(
+                actions = {
+                    IconButton(onClick = {}) {
+                        Icon(Icons.Filled.Check, null)
+                    }
+                },
+                floatingActionButton = {
+                    // Navigation - navigation controller 가 내브 그래프를 들고 있다. 가장 중요한 요소.
+                    FloatingActionButton(
+                        onClick = { navHostController.navigate(AddNote) },
+                        containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
+                        elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
+                    ) {
+                        Icon(Icons.Filled.Add, null)
+                    }
                 }
             )
         }
     ) { innerPadding ->
-        Greeting(
-            name = "Distill your taste.",
-            modifier = Modifier.padding(innerPadding)
-        )
+        AppNavigation(modifier = Modifier.padding(innerPadding), navHostController)
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier,
-        style = MaterialTheme.typography.bodyLarge
-    )
-}
 
 @Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
