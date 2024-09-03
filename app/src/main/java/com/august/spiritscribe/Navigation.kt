@@ -1,31 +1,52 @@
 package com.august.spiritscribe
 
-import android.util.Log
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
 import kotlinx.serialization.Serializable
 
+sealed interface AppRoute
+
 @Serializable
-object Home
+data object AddNote : AppRoute
+
 @Serializable
-object AddNote
+data class NoteDetail(val id: String) : AppRoute
+
 @Serializable
-data class NoteDetail(val id: String)
+data object MyNoteList : AppRoute
+
 @Serializable
-object NoteList
+data object Feed : AppRoute
+
+@Serializable
+data object Search : AppRoute
+
+@Serializable
+data object Profile : AppRoute
+
+val topLevelDestinations: List<AppRoute> = listOf(
+    MyNoteList, Feed, Search, Profile
+)
 
 //https://developer.android.com/guide/navigation/design/encapsulate
 //In summary
@@ -36,11 +57,13 @@ object NoteList
 
 @Composable
 fun AppNavigation(modifier: Modifier = Modifier, navController: NavHostController) {
-    NavHost(navController, startDestination = Home) {
-        homeDestination()
+    NavHost(navController, startDestination = MyNoteList) {
         noteDestination(
             navigateToNoteDetail = { id: String -> navController.navigateToNoteDetail(id) }
         )
+        feedDestination()
+        searchDestination()
+        profileDestination()
     }
 }
 
@@ -50,25 +73,38 @@ fun NavController.navigateToNoteDetail(id: String) {
 }
 
 // NavGraphBuilder 확잠함수로 네비 목적지를 캡슐화
-fun NavGraphBuilder.homeDestination() {
-    composable<Home> { HomeRoute() }
+fun NavGraphBuilder.feedDestination() {
+    composable<Feed> { FeedRoute() }
 }
 
 fun NavGraphBuilder.noteDestination(
     navigateToNoteDetail: (String) -> Unit,
 ) {
     composable<AddNote> { AddNoteRoute() }
-    composable<NoteList> { NoteListRoute(navigateToNoteDetail = navigateToNoteDetail) }
+    composable<MyNoteList> { NoteListRoute(navigateToNoteDetail = navigateToNoteDetail) }
+    composable<NoteDetail> { navBackStackEntry: NavBackStackEntry ->
+        // Type safe arguments !
+        // TODO :  https://developer.android.com/guide/navigation/design/type-safety
+        val detail: NoteDetail = navBackStackEntry.toRoute()
+        NoteDetailRoute(detail.id)
+    }
+}
+
+fun NavGraphBuilder.searchDestination() {
+    composable<Search> { SearchRoute() }
+}
+
+fun NavGraphBuilder.profileDestination() {
+    composable<Profile> { ProfileRoute() }
 }
 
 @Composable
-fun HomeRoute() {
+fun FeedRoute() {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        SideEffect { Log.d("===", "Home Route") }
         Text("Home", color = Color.Black, style = MaterialTheme.typography.bodyLarge)
     }
 }
@@ -80,7 +116,6 @@ fun AddNoteRoute() {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        SideEffect { Log.d("===", "Add Note Route") }
         Text("Add Note")
     }
 }
@@ -92,8 +127,24 @@ fun NoteListRoute(navigateToNoteDetail: (String) -> Unit) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        SideEffect { Log.d("===", "Note List Route") }
-        Text("Note List")
+        listOf(
+            "DESTINATION_ID_ONE",
+            "DESTINATION_ID_TWO",
+            "DESTINATION_ID_THREE"
+        ).forEachIndexed { index, item ->
+            Column(modifier = Modifier
+                .padding(8.dp)
+                .wrapContentHeight()
+                .fillMaxWidth()
+                .clickable {
+                    navigateToNoteDetail(item)
+                }
+                .background(Color.White)
+                .padding(8.dp)
+            ) {
+                Text(text = item, style = MaterialTheme.typography.headlineLarge)
+            }
+        }
     }
 }
 
@@ -104,7 +155,28 @@ fun NoteDetailRoute(id: String) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        SideEffect { Log.d("===", "Note Detail Route") }
-        Text("Note Detail")
+        Text("Note Detail_$id")
+    }
+}
+
+@Composable
+fun SearchRoute(modifier: Modifier = Modifier) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("Search")
+    }
+}
+
+@Composable
+fun ProfileRoute(modifier: Modifier = Modifier) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("Profile")
     }
 }

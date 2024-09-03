@@ -7,17 +7,20 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.BottomAppBarDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
@@ -36,29 +39,27 @@ class MainActivity : ComponentActivity() {
 
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun App() {
     val navHostController = rememberNavController()
     Scaffold(
         bottomBar = {
-            BottomAppBar(
-                actions = {
-                    IconButton(onClick = {}) {
-                        Icon(Icons.Filled.Check, null)
-                    }
-                },
-                floatingActionButton = {
-                    // Navigation - navigation controller 가 내브 그래프를 들고 있다. 가장 중요한 요소.
-                    FloatingActionButton(
-                        onClick = { navHostController.navigate(AddNote) },
-                        containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
-                        elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
-                    ) {
-                        Icon(Icons.Filled.Add, null)
-                    }
+            var selectedItem by remember { mutableIntStateOf(0) }
+            val items = listOf("Note", "Feed", "Search", "Profile")
+            val icons = listOf(Icons.Filled.Create, Icons.Filled.Menu, Icons.Filled.Search, Icons.Filled.AccountCircle)
+            NavigationBar {
+                items.forEachIndexed { index, item ->
+                    NavigationBarItem(
+                        icon = { Icon(icons[index], contentDescription = item) },
+                        label = { Text(item) },
+                        selected = selectedItem == index,
+                        onClick = {
+                            selectedItem = index
+                            navHostController.navigate(topLevelDestinations[index])
+                        }
+                    )
                 }
-            )
+            }
         }
     ) { innerPadding ->
         AppNavigation(modifier = Modifier.padding(innerPadding), navHostController)
