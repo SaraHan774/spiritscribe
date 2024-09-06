@@ -1,6 +1,7 @@
 package com.august.spiritscribe.showcase
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -10,8 +11,11 @@ import kotlinx.coroutines.test.TestCoroutineScheduler
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
+import kotlin.random.Random
+import kotlin.system.measureTimeMillis
 
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class FetchUserUseCaseTest {
 
     private lateinit var repo: UserDataRepository
@@ -100,6 +104,59 @@ class FetchUserUseCaseTest {
         }
         testDispatcher.scheduler.advanceTimeBy(2) // 2밀리초를 흐르게 하면 그 전에 지연된 모든 코루틴이 재개된다
         testDispatcher.scheduler.runCurrent() // 2밀리초와 정확히 일치하는 시간에 예정된 연산을 재개한다
+    }
+
+    @Test
+    fun `test advanceTimeBy and runCurrent 2`() {
+        val testDispatcher = StandardTestDispatcher()
+        CoroutineScope(testDispatcher).launch {
+            delay(2)
+            print("Done")
+        }
+        CoroutineScope(testDispatcher).launch {
+            delay(4)
+            print("Done2")
+        }
+        CoroutineScope(testDispatcher).launch {
+            delay(6)
+            print("Done3")
+        }
+        for (i in 1..5) {
+            print(".")
+            // 시간을 흐르게 하고 그동안 일어났을 모든 연산을 수행함
+            testDispatcher.scheduler.advanceTimeBy(1)
+            // 1밀리초와 정확히 일치하는 시간에 예정된 연산을 재개한다
+            testDispatcher.scheduler.runCurrent()
+
+            // 1 회
+            // 가상시간 1, 예정된 연산 없음 .
+            // 가상시간 2, 예정된 연산 있음 .
+                        // 가상시간 2, Done출력
+            // 가상시간 3, 예정된 연산 없음 .
+            // 가상시간 4, 예정된 연산 있음 .
+                        // 가상시간 4, Done2 출력
+            // 가상시간 5, 예정된 연산 없음
+        }
+        //.DoneDone2Done3.... => x
+        //..Done..Don2. => o
+    }
+
+    @Test
+    fun `가상시간은 실제 시간과 무관하다`() {
+        val dispatcher = StandardTestDispatcher()
+        CoroutineScope(dispatcher).launch {
+            delay(1000)
+            println("Coroutine done")
+        }
+
+        Thread.sleep(Random.nextLong(2000)) // 여기서 얼마나 기다리는지는 상관이 없다. 결과에 영향을 주지 않음
+
+        val time = measureTimeMillis {
+            println("${dispatcher.scheduler.currentTime} Before") //0
+            dispatcher.scheduler.advanceUntilIdle()
+            println("${dispatcher.scheduler.currentTime} After") //1000
+        }
+        println("Took $time ms")
     }
 }
 
