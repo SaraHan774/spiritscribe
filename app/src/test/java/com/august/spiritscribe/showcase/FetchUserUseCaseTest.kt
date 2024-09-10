@@ -384,6 +384,7 @@ class MockTest {
     fun `should load data concurrently`() = runTest {
         // given
         val userRepo = mockk<UserDataRepository>()
+        // coEvery - suspend 함수 모킹 (coroutine 이란 뜻인가?)
         coEvery { userRepo.getName() }.coAnswers {
             delay(600)
             "Ben"

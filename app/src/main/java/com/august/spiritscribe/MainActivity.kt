@@ -23,6 +23,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.august.spiritscribe.ui.theme.AppTheme
 
@@ -41,21 +45,27 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun App() {
+    // https://developer.android.com/develop/ui/compose/navigation#bottom-nav
+    // single top 적용하고, TopLevelRoute 로 목적지 감싸기
     val navHostController = rememberNavController()
     Scaffold(
         bottomBar = {
-            var selectedItem by remember { mutableIntStateOf(0) }
-            val items = listOf("Note", "Feed", "Search", "Profile")
-            val icons = listOf(Icons.Filled.Create, Icons.Filled.Menu, Icons.Filled.Search, Icons.Filled.AccountCircle)
+            val navBackStackEntry by navHostController.currentBackStackEntryAsState()
+            val currentDestination = navBackStackEntry?.destination
             NavigationBar {
-                items.forEachIndexed { index, item ->
+                topLevelRoutes.forEach { topLevelRoute ->
                     NavigationBarItem(
-                        icon = { Icon(icons[index], contentDescription = item) },
-                        label = { Text(item) },
-                        selected = selectedItem == index,
+                        icon = { Icon(topLevelRoute.icon, contentDescription = topLevelRoute.name) },
+                        label = { Text(topLevelRoute.name) },
+                        selected = currentDestination?.hierarchy?.any { it.hasRoute(topLevelRoute.route::class) } ?: false,
                         onClick = {
-                            selectedItem = index
-                            navHostController.navigate(topLevelDestinations[index])
+                            navHostController.navigate(topLevelRoute.route) {
+                                popUpTo(navHostController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
                         }
                     )
                 }

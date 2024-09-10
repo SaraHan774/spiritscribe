@@ -8,12 +8,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
@@ -24,29 +30,34 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import kotlinx.serialization.Serializable
 
-sealed interface AppRoute
 
 @Serializable
-data object AddNote : AppRoute
+data object AddNote
 
 @Serializable
-data class NoteDetail(val id: String) : AppRoute
+data class NoteDetail(val id: String)
 
 @Serializable
-data object MyNoteList : AppRoute
+data object MyNoteList
 
 @Serializable
-data object Feed : AppRoute
+data object Feed
 
 @Serializable
-data object Search : AppRoute
+data object Search
 
 @Serializable
-data object Profile : AppRoute
+data object Profile
 
-val topLevelDestinations: List<AppRoute> = listOf(
-    MyNoteList, Feed, Search, Profile
+
+data class TopLevelRoute<T : Any>(val name: String, val route: T, val icon: ImageVector)
+val topLevelRoutes = listOf(
+    TopLevelRoute("Note", MyNoteList, Icons.Filled.Create),
+    TopLevelRoute("Feed", Feed, Icons.Filled.Menu),
+    TopLevelRoute("Search", Search, Icons.Filled.Search),
+    TopLevelRoute("Profile", Profile, Icons.Filled.AccountCircle)
 )
+
 
 //https://developer.android.com/guide/navigation/design/encapsulate
 //In summary
@@ -97,6 +108,9 @@ fun NavGraphBuilder.searchDestination() {
 fun NavGraphBuilder.profileDestination() {
     composable<Profile> { ProfileRoute() }
 }
+
+
+//// Routes /////
 
 @Composable
 fun FeedRoute() {
