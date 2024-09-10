@@ -1,10 +1,11 @@
 package com.august.spiritscribe.showcase
 
-import android.service.autofill.UserData
 import io.mockk.coEvery
 import io.mockk.mockk
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -18,15 +19,21 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
+import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.currentTime
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import kotlinx.coroutines.withContext
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
+import org.junit.rules.TestWatcher
+import org.junit.runner.Description
+import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
-import kotlin.math.exp
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.random.Random
 import kotlin.system.measureTimeMillis
 
@@ -280,7 +287,7 @@ class BackgroundScopeTest {
     }
 
     @Test
-    fun `should increment counter2` () = runTest {
+    fun `should increment counter2`() = runTest {
         var i = 0
         backgroundScope.launch {
             while (true) {
@@ -318,6 +325,7 @@ class CancelContextPassingTest {
         var ctx: CoroutineContext? = null
         val name1 = CoroutineName("Name 1")
         withContext(name1) {
+
             listOf("A").mapAsync {
                 ctx = currentCoroutineContext()
                 it
@@ -352,9 +360,11 @@ class CancelContextPassingTest {
 
 }
 
-suspend fun <T, R> Iterable<T>.mapAsync(transformation: suspend (T) -> R) : List<R> = coroutineScope {
-    this@mapAsync.map { async { transformation(it) } }.awaitAll() // 만약 async 를 외부 스코프에서 시작하면 위의 테스트들은 실패한다.
-}
+suspend fun <T, R> Iterable<T>.mapAsync(transformation: suspend (T) -> R): List<R> =
+    coroutineScope {
+        this@mapAsync.map { async { transformation(it) } }
+            .awaitAll() // 만약 async 를 외부 스코프에서 시작하면 위의 테스트들은 실패한다.
+    }
 
 class UnconfinedTest {
 
@@ -362,7 +372,7 @@ class UnconfinedTest {
     // UnconfinedTestDispatcher - 코루틴을 시작했을때 첫번째 지연이 일어나기까지 모든 연산을 즉시 수행
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun test(){
+    fun test() {
         val dispa = StandardTestDispatcher()
         CoroutineScope(dispa).launch {
             print("A")
@@ -400,5 +410,72 @@ class MockTest {
         val useCase = FetchUserUseCase(userRepo)
         useCase.fetchUserData()
         assertEquals(800, currentTime)
+    }
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
+class ChangeDispatcherTest {
+    @Test
+    fun test() = runTest {
+        // 디스패처를 주입해서 테스트한다.
+        // Dispatchers.IO 를 사용하는 대신 runTest 의 StandardTestDispatcher 를 사용한다
+        val testDispatcher = this.coroutineContext[ContinuationInterceptor] as CoroutineDispatcher
+        val useCase = FetchUserUseCaseDispatcherInject(
+            userRepo = FakeUserDataRepository(),
+            ioDispatcher = testDispatcher
+        )
+        useCase.fetchUserData()
+        assertEquals(currentTime, 1000)
+    }
+
+    @Test
+    fun test2() = runTest {
+        val useCase = FetchUserUseCaseDispatcherInject(
+            userRepo = FakeUserDataRepository(),
+            ioDispatcher = EmptyCoroutineContext, // Dispatcher 생성자 부분을 CoroutineContext 로 바꾸고, 엠티를 넣어준다.
+        )
+        useCase.fetchUserData()
+        assertEquals(currentTime, 1000)
+    }
+}
+
+class FetchUserUseCaseDispatcherInject(
+    private val userRepo: UserDataRepository,
+    private val ioDispatcher: CoroutineContext = Dispatchers.IO
+) {
+    suspend fun fetchUserData() = withContext(ioDispatcher) {
+        // 유닛 테스트에서 디스패처를 교체해주지 않으면 모든 테스트가 실제 시간만큼 기다리고, 가상시간이 흐르지 않는다.
+        // 즉 currentTime 이 0으로 유지됨
+        // 따라서 생성자로 디스패처 주입해서 교체해주어야 함.
+        val name = async { userRepo.getName() }
+        val friends = async { userRepo.getFriends() }
+        val profile = async { userRepo.getProfile() }
+        User(
+            name = name.await(),
+            friends = friends.await(),
+            profile = profile.await()
+        )
+    }
+}
+
+// 룰이 있는 테스트 디스패처 설정하기
+// 룰은 테스트 클래스의 수명 동안 반드시 실행되어야 할 로직을 포함하는 클래스
+// 룰은 모든 테스트가 시작 되기 전과 끝난 뒤에 실행해야 할 것들을 정의할 수 있음
+// --- 테스트 디스패처를 설정하고, 나중에 이를 해제하는 등.
+@OptIn(ExperimentalCoroutinesApi::class)
+class MainCoroutineRule : TestWatcher() {
+    lateinit var scheduler: TestCoroutineScheduler
+        private set
+    lateinit var dispatcher: TestDispatcher
+        private set
+
+    override fun starting(description: Description?) {
+        scheduler = TestCoroutineScheduler()
+        dispatcher = StandardTestDispatcher(scheduler)
+        Dispatchers.setMain(dispatcher)
+    }
+
+    override fun finished(description: Description?) {
+        Dispatchers.resetMain()
     }
 }
