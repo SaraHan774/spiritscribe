@@ -28,6 +28,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import com.august.spiritscribe.ui.note.NoteDetailRoute
+import com.august.spiritscribe.ui.note.NoteListRoute
 import kotlinx.serialization.Serializable
 
 
@@ -51,6 +53,7 @@ data object Profile
 
 
 data class TopLevelRoute<T : Any>(val name: String, val route: T, val icon: ImageVector)
+
 val topLevelRoutes = listOf(
     TopLevelRoute("Note", MyNoteList, Icons.Filled.Create),
     TopLevelRoute("Feed", Feed, Icons.Filled.Menu),
@@ -68,7 +71,11 @@ val topLevelRoutes = listOf(
 
 @Composable
 fun AppNavigation(modifier: Modifier = Modifier, navController: NavHostController) {
-    NavHost(navController, startDestination = MyNoteList) {
+    NavHost(
+        modifier = modifier,
+        navController = navController,
+        startDestination = MyNoteList
+    ) {
         noteDestination(
             navigateToNoteDetail = { id: String -> navController.navigateToNoteDetail(id) }
         )
@@ -134,44 +141,6 @@ fun AddNoteRoute() {
     }
 }
 
-@Composable
-fun NoteListRoute(navigateToNoteDetail: (String) -> Unit) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        listOf(
-            "DESTINATION_ID_ONE",
-            "DESTINATION_ID_TWO",
-            "DESTINATION_ID_THREE"
-        ).forEachIndexed { index, item ->
-            Column(modifier = Modifier
-                .padding(8.dp)
-                .wrapContentHeight()
-                .fillMaxWidth()
-                .clickable {
-                    navigateToNoteDetail(item)
-                }
-                .background(Color.White)
-                .padding(8.dp)
-            ) {
-                Text(text = item, style = MaterialTheme.typography.headlineLarge)
-            }
-        }
-    }
-}
-
-@Composable
-fun NoteDetailRoute(id: String) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Note Detail_$id")
-    }
-}
 
 @Composable
 fun SearchRoute(modifier: Modifier = Modifier) {

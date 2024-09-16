@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">spiritscribe</string>
+    <string name="lorem_20_words">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla mollis semper luctus. Quisque aliquam arcu at velit laoreet, sagittis tristique.</string>
 </resources>
