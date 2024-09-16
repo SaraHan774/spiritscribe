@@ -1,13 +1,11 @@
 package com.august.spiritscribe
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Create
@@ -20,7 +18,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -69,19 +66,23 @@ val topLevelRoutes = listOf(
 //Expose navigation events by creating extension functions on NavController
 //Use internal to keep screens and route types private
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun AppNavigation(modifier: Modifier = Modifier, navController: NavHostController) {
-    NavHost(
-        modifier = modifier,
-        navController = navController,
-        startDestination = MyNoteList
-    ) {
-        noteDestination(
-            navigateToNoteDetail = { id: String -> navController.navigateToNoteDetail(id) }
-        )
-        feedDestination()
-        searchDestination()
-        profileDestination()
+    SharedTransitionLayout {
+        NavHost(
+            modifier = modifier,
+            navController = navController,
+            startDestination = MyNoteList
+        ) {
+            noteDestination(
+                navigateToNoteDetail = { id: String -> navController.navigateToNoteDetail(id) },
+                sharedTransitionScope = this@SharedTransitionLayout,
+            )
+            feedDestination()
+            searchDestination()
+            profileDestination()
+        }
     }
 }
 
@@ -95,17 +96,29 @@ fun NavGraphBuilder.feedDestination() {
     composable<Feed> { FeedRoute() }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 fun NavGraphBuilder.noteDestination(
     navigateToNoteDetail: (String) -> Unit,
+    sharedTransitionScope: SharedTransitionScope,
 ) {
-    composable<AddNote> { AddNoteRoute() }
-    composable<MyNoteList> { NoteListRoute(navigateToNoteDetail = navigateToNoteDetail) }
+    composable<MyNoteList> {
+        NoteListRoute(
+            navigateToNoteDetail = navigateToNoteDetail,
+            sharedTransitionScope = sharedTransitionScope,
+            animatedContentScope = this@composable,
+        )
+    }
     composable<NoteDetail> { navBackStackEntry: NavBackStackEntry ->
         // Type safe arguments !
         // TODO :  https://developer.android.com/guide/navigation/design/type-safety
         val detail: NoteDetail = navBackStackEntry.toRoute()
-        NoteDetailRoute(detail.id)
+        NoteDetailRoute(
+            detail.id,
+            sharedTransitionScope = sharedTransitionScope,
+            animatedContentScope = this@composable,
+        )
     }
+    composable<AddNote> { AddNoteRoute() }
 }
 
 fun NavGraphBuilder.searchDestination() {
