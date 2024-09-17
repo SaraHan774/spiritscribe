@@ -1,7 +1,9 @@
 package com.august.spiritscribe.ui.note
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -32,20 +34,21 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.august.spiritscribe.R
+import com.august.spiritscribe.data.FakeDataSource
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun NoteListItem(
     modifier: Modifier = Modifier,
-    itemId: Int, // TODO UIM 으로 교체
-    onClickItem: (Int) -> Unit,
+    uim: NoteUIM,
+    onClickItem: (NoteUIM) -> Unit,
     sharedTransitionScope: SharedTransitionScope,
     animatedContentScope: AnimatedContentScope,
 ) {
     with(sharedTransitionScope) {
         Row(
             modifier = modifier
-                .clickable { onClickItem(itemId) }
+                .clickable { onClickItem(uim) }
                 .shadow(elevation = 4.dp, shape = RoundedCornerShape(size = 4.dp))
                 .background(color = MaterialTheme.colorScheme.background)
         ) {
@@ -53,7 +56,7 @@ fun NoteListItem(
                 modifier = Modifier
                     .sharedElement(
                         animatedVisibilityScope = animatedContentScope,
-                        state = sharedTransitionScope.rememberSharedContentState(key = "image$itemId")
+                        state = sharedTransitionScope.rememberSharedContentState(key = "image${uim.id}")
                     )
                     .padding(8.dp)
                     .size(width = 80.dp, height = 160.dp)
@@ -67,16 +70,20 @@ fun NoteListItem(
             ) {
                 val annotatedString = buildAnnotatedString {
                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append("DISTILLERY #$itemId")
+                        append(uim.distillery)
                         append(" · ")
-                        append("BOTTLER")
+                        append(uim.bottler)
                     }
                     append("\n")
-                    append("YEAR")
-                    append(" · ")
-                    append("AGE")
-                    append(" · ")
-                    append("ABV")
+                    if (uim.year.isNotEmpty()) {
+                        append(stringResource(R.string.note_formatter_year, uim.year))
+                        append(" · ")
+                    }
+                    if (uim.age.isNotEmpty()) {
+                        append(stringResource(R.string.note_formatter_age, uim.age))
+                        append(" · ")
+                    }
+                    append(stringResource(R.string.note_formatter_abv, uim.abv))
                 }
                 Text(
                     text = annotatedString,
@@ -99,7 +106,8 @@ fun NoteListItem(
                     )
                 }
                 Text(
-                    text = stringResource(R.string.lorem_20_words),
+                    modifier = Modifier.padding(end = 8.dp, bottom = 8.dp),
+                    text = uim.description,
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -112,10 +120,17 @@ fun NoteListItem(
 @Composable
 private fun Preview(modifier: Modifier = Modifier) {
     MaterialTheme {
-        // TODO : fix preview!!!
-//        NoteListItem(
-//            itemId = 0,
-//            onClickItem = {},
-//        )
+        SharedTransitionLayout {
+            // AnimatedContent 는 단지 프리뷰 에러 방지를 위해서 넣는다.
+            // animatedContentScope 제공하는 용도임 ;
+            AnimatedContent(targetState = Unit, label = "") { s ->
+                NoteListItem(
+                    uim = FakeDataSource.getNoteUIM()[0],
+                    onClickItem = { s },
+                    sharedTransitionScope = this@SharedTransitionLayout,
+                    animatedContentScope = this
+                )
+            }
+        }
     }
 }

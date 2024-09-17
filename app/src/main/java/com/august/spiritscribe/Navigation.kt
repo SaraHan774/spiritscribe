@@ -27,6 +27,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.august.spiritscribe.ui.note.NoteDetailRoute
 import com.august.spiritscribe.ui.note.NoteListRoute
+import com.august.spiritscribe.ui.search.SearchRoute
 import kotlinx.serialization.Serializable
 
 
@@ -151,18 +152,6 @@ fun AddNoteRoute() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text("Add Note")
-    }
-}
-
-
-@Composable
-fun SearchRoute(modifier: Modifier = Modifier) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Search")
     }
 }
 
