@@ -70,9 +70,7 @@ fun NoteListItem(
             ) {
                 val annotatedString = buildAnnotatedString {
                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append(uim.distillery)
-                        append(" · ")
-                        append(uim.bottler)
+                        append(uim.name)
                     }
                     append("\n")
                     if (uim.year.isNotEmpty()) {

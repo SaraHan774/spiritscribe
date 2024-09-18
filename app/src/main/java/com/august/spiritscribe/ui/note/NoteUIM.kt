@@ -1,27 +1,25 @@
 package com.august.spiritscribe.ui.note
 
-import com.august.spiritscribe.model.Note
+import com.august.spiritscribe.model.WhiskeyNote
 
 data class NoteUIM(
     val id: String,
-    val distillery: String,
-    val bottler: String,
+    val name: String,
     val year: String,
     val age: String,
     val abv: String,
     val description: String,
 )
 
-fun List<Note>.toNoteUIMs(): List<NoteUIM> {
+fun List<WhiskeyNote>.toNoteUIMs(): List<NoteUIM> {
     return this.map {
         NoteUIM(
             id = it.id,
-            distillery = it.distillery,
-            bottler = it.bottler,
+            name = it.name,
             year = it.year?.toString() ?: "",
             age = it.age?.toString() ?: "",
             abv = it.abv.toString(),
-            description = it.notes,
+            description = it.additionalNotes,
         )
     }
 }

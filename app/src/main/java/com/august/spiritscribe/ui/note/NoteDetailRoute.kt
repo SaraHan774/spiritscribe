@@ -46,6 +46,7 @@ fun NoteDetailRoute(
             )
             Text("Distillery Aberlour")
             Text("Note Detail_$id")
+            FlavorProfileGraph()
         }
     }
 }
