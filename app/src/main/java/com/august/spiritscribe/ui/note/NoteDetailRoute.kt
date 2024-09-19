@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.august.spiritscribe.R
+import com.august.spiritscribe.data.FakeDataSource
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -26,6 +27,9 @@ fun NoteDetailRoute(
     animatedContentScope: AnimatedContentScope,
 ) {
     val scrollState = rememberScrollState()
+    // FIXME : viewModel
+    val note = requireNotNull(FakeDataSource.getNoteUIM().find { it.id == id })
+
     with(sharedTransitionScope) {
         Column(
             modifier = Modifier
@@ -44,8 +48,11 @@ fun NoteDetailRoute(
                         animatedVisibilityScope = animatedContentScope,
                     )
             )
-            Text("Distillery Aberlour")
-            Text("Note Detail_$id")
+            Text(text = "NAME ${note.name}")
+            Text(text = "AGE ${note.age}")
+            Text(text = "YEAR ${note.year}")
+            Text(text = "DESCRIPTION ${note.description}")
+            Text(text = "ABV ${note.abv}")
             FlavorProfileGraph()
         }
     }

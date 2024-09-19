@@ -1,16 +1,26 @@
 package com.august.spiritscribe.ui.note
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -26,29 +36,41 @@ fun FlavorProfileGraph() {
     val flavorProfiles = remember { mutableStateListOf(*flavors.toTypedArray()) }
 
     Column(modifier = Modifier.padding(16.dp)) {
-        Text("Set Flavor Intensities", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        Text("Set Flavor Intensities", style = MaterialTheme.typography.headlineSmall)
 
         // Create sliders for each flavor
         flavorProfiles.forEach { profile ->
-            FlavorIntensityInput(profile)
+            FlavorIntensityInput(
+                profile = profile,
+                onInputChange = { value ->
+                    flavorProfiles[profile.flavor.ordinal] = profile.copy(intensity = value)
+                }
+            )
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
         // Draw the graph
-        Text("Flavor Intensity Graph", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        Text("Flavor Intensity Graph", style = MaterialTheme.typography.headlineSmall)
         FlavorIntensityGraph(flavorProfiles)
     }
 }
 
 @Composable
-fun FlavorIntensityInput(profile: FlavorProfile) {
-    var intensity by remember { mutableIntStateOf(profile.intensity) }
+fun FlavorIntensityInput(
+    profile: FlavorProfile,
+    onInputChange: (Int) -> Unit
+) {
     Column(modifier = Modifier.padding(vertical = 8.dp)) {
-        Text("${profile.flavor}: ${profile.intensity}", fontSize = 16.sp)
+        Text(
+            "${profile.flavor}: ${profile.intensity}",
+            style = MaterialTheme.typography.bodyMedium
+        )
         Slider(
             value = profile.intensity.toFloat(),
-            onValueChange = { intensity = it.toInt() },
+            onValueChange = { value: Float ->
+                onInputChange(value.toInt())
+            },
             valueRange = 0f..5f,
             steps = 4 // 5 steps for the intensity range 0 to 5
         )
@@ -78,7 +100,7 @@ fun FlavorIntensityGraph(profiles: List<FlavorProfile>) {
             ) {
                 drawRect(
                     color = Color.Blue,
-                    size = androidx.compose.ui.geometry.Size(
+                    size = Size(
                         width = size.width,
                         height = barHeight
                     )
