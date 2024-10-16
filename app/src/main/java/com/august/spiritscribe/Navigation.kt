@@ -27,6 +27,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.august.spiritscribe.ui.note.NoteDetailRoute
 import com.august.spiritscribe.ui.note.NoteListRoute
+import com.august.spiritscribe.ui.poc.NewThreadScreen
 import com.august.spiritscribe.ui.search.SearchRoute
 import kotlinx.serialization.Serializable
 
@@ -79,6 +80,7 @@ fun AppNavigation(modifier: Modifier = Modifier, navController: NavHostControlle
             noteDestination(
                 navigateToNoteDetail = { id: String -> navController.navigateToNoteDetail(id) },
                 sharedTransitionScope = this@SharedTransitionLayout,
+                navigateToAddNote = { navController.navigateToAddNote() }
             )
             feedDestination()
             searchDestination()
@@ -92,6 +94,10 @@ fun NavController.navigateToNoteDetail(id: String) {
     navigate(route = NoteDetail(id))
 }
 
+fun NavController.navigateToAddNote() {
+    navigate(route = AddNote)
+}
+
 // NavGraphBuilder 확잠함수로 네비 목적지를 캡슐화
 fun NavGraphBuilder.feedDestination() {
     composable<Feed> { FeedRoute() }
@@ -100,6 +106,7 @@ fun NavGraphBuilder.feedDestination() {
 @OptIn(ExperimentalSharedTransitionApi::class)
 fun NavGraphBuilder.noteDestination(
     navigateToNoteDetail: (String) -> Unit,
+    navigateToAddNote: () -> Unit,
     sharedTransitionScope: SharedTransitionScope,
 ) {
     composable<MyNoteList> {
@@ -117,6 +124,7 @@ fun NavGraphBuilder.noteDestination(
             detail.id,
             sharedTransitionScope = sharedTransitionScope,
             animatedContentScope = this@composable,
+            onClickAddNote = navigateToAddNote
         )
     }
     composable<AddNote> { AddNoteRoute() }
@@ -146,13 +154,7 @@ fun FeedRoute() {
 
 @Composable
 fun AddNoteRoute() {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Add Note")
-    }
+    NewThreadScreen()
 }
 
 @Composable

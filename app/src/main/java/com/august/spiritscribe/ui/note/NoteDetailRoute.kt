@@ -38,6 +38,7 @@ fun NoteDetailRoute(
     id: String,
     sharedTransitionScope: SharedTransitionScope,
     animatedContentScope: AnimatedContentScope,
+    onClickAddNote: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
     // FIXME : viewModel
@@ -68,23 +69,12 @@ fun NoteDetailRoute(
             Text(text = "YEAR ${note.year}")
             Text(text = "DESCRIPTION ${note.description}")
             Text(text = "ABV ${note.abv}")
-            Button(onClick = { isNoteBoxVisible = !isNoteBoxVisible }) {
+            Button(onClick = onClickAddNote) {
                 Row {
                     Icon(imageVector = Icons.Filled.Add, contentDescription = null)
                     Text(text = "ADD NOTE")
                 }
             }
-            // TODO : don't let this toggle,
-            //  make this like a infinite thread
-            if (isNoteBoxVisible) {
-                Spacer(Modifier.height(16.dp))
-                NoteBox()
-            }
         }
     }
-}
-
-@Composable
-fun NoteBox(modifier: Modifier = Modifier) {
-     NewThreadItem()
 }
