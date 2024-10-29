@@ -1,7 +1,5 @@
 package com.august.spiritscribe.ui.poc
 
-import android.graphics.Bitmap
-import android.net.Uri
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,19 +11,24 @@ class NewThreadViewModel : ViewModel() {
     // https://proandroiddev.com/two-way-data-binding-in-jetpack-compose-1be55c402ec6
     val input = MutableStateFlow("")
 
-    // TODO - gallery, camera 이미지 하나의 리스트에 추가해서 뷰가 구독하도록 수정 필요
-    private val _imageUriList = MutableStateFlow<List<Uri>>(emptyList())
-    val imageUriList : StateFlow<List<Uri>> = _imageUriList.asStateFlow()
+    private val _uim = MutableStateFlow<NewThreadUIM>(
+        NewThreadUIM(
+            nickName = "Sara",
+            profileImageUrl = "https://fastly.picsum.photos/id/258/200/200.jpg?hmac=SRxBTuyYSeHtVooeEMwmQPB0yIF3fqnvrOBR7DJnOlM",
+            threadContent = ThreadContent.None()
+        )
+    )
+    val uim: StateFlow<NewThreadUIM> = _uim.asStateFlow()
 
-    private val _bitmap = MutableStateFlow<Bitmap?>(null)
-    val bitmap : StateFlow<Bitmap?> = _bitmap.asStateFlow()
-
-    fun onSelectImagesFromGallery(uriList: List<Uri>) {
-        // for each uri
-        _imageUriList.update { uriList }
+    fun onSelectImagesFromGallery(uriList: List<String>) {
+        _uim.update {
+            it.copy(threadContent = ThreadContent.Image(uriList))
+        }
     }
 
-    fun onTakePicturePreview(bitmap: Bitmap?) {
-        _bitmap.update { bitmap }
+    fun onTakePicturePreview(uri: String) {
+        _uim.update {
+            it.copy(threadContent = ThreadContent.Image(uris = listOf(uri)))
+        }
     }
 }
