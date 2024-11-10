@@ -36,37 +36,72 @@ fun NoteListRoute(
     sharedTransitionScope: SharedTransitionScope,
     animatedContentScope: AnimatedContentScope,
 ) {
-    val uimList = FakeDataSource.getNoteUIM().take(1)
-    val isEmptyList = true
+    val uimList = FakeDataSource.getNoteUIM()
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            items(uimList) { uim ->
+                NoteListItem(
+                    modifier = Modifier.padding(
+                        vertical = 4.dp, horizontal = 8.dp
+                    ),
+                    uim = uim,
+                    onClickItem = { item -> navigateToNoteDetail(item.id) },
+                    sharedTransitionScope,
+                    animatedContentScope,
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalSharedTransitionApi::class)
+@Composable
+fun DebugScreenNoteListRoute(
+    navigateToNoteDetail: (String) -> Unit,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedContentScope: AnimatedContentScope,
+) {
+    val uimList = FakeDataSource.getNoteUIM().take(1)
+    val isEmptyList = true
+    val arrangement = if (isEmptyList) LastItemCenteredArrangement else Arrangement.Top
+    Column(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .weight(1f)
                 .background(color = Color.LightGray),
-            verticalArrangement = if (isEmptyList) LastItemCenteredArrangement else {
-                Arrangement.Top
-            },
+            verticalArrangement = arrangement,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             item {
                 Box(
                     modifier = Modifier
-                        .height(300.dp)
+                        .height(250.dp)
                         .fillMaxWidth()
                         .background(color = Color.Red),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text(text = "HEADER NOTORIOUS", style = MaterialTheme.typography.headlineLarge)
+                    Text(
+                        text = "HEADER NOTORIOUS",
+                        style = MaterialTheme.typography.headlineLarge
+                    )
                 }
             }
 
             if (isEmptyList) {
                 item {
+                    // Empty View
                     Column(
-                        modifier = Modifier.heightIn(min = 255.dp),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .heightIn(min = 255.dp)
+                            .background(color = Color.Cyan),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
                     ) {
@@ -84,6 +119,7 @@ fun NoteListRoute(
                     }
                 }
             } else {
+                // List View
                 items(uimList) { uim ->
                     NoteListItem(
                         modifier = Modifier.padding(

@@ -26,6 +26,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.august.spiritscribe.ui.note.NoteDetailRoute
+import com.august.spiritscribe.ui.note.DebugScreenNoteListRoute
 import com.august.spiritscribe.ui.note.NoteListRoute
 import com.august.spiritscribe.ui.poc.NewThreadScreen
 import com.august.spiritscribe.ui.search.SearchRoute
