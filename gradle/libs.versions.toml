@@ -14,12 +14,14 @@ activityCompose = "1.9.1"
 composeBom = "2024.08.00"
 materialIconsExtended = "1.7.4"
 mockk = "1.13.12"
+turbineVersion = "1.2.0"
 uiTextGoogleFonts = "1.6.8"
 navigationCompose = "2.8.0-rc01"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
+app-turbine = { module = "app.cash.turbine:turbine", version.ref = "turbineVersion" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilNetworkOkhttp" }
 coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coilNetworkOkhttp" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroidCompiler" }
