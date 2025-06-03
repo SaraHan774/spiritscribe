@@ -1,11 +1,10 @@
 package com.august.spiritscribe.data
 
-import com.august.spiritscribe.model.ColorMeter
-import com.august.spiritscribe.model.FinalRating
-import com.august.spiritscribe.model.Flavor
-import com.august.spiritscribe.model.FlavorProfile
-import com.august.spiritscribe.model.WhiskeyColor
-import com.august.spiritscribe.model.WhiskeyNote
+import com.august.spiritscribe.domain.model.ColorMeter
+import com.august.spiritscribe.domain.model.Flavor
+import com.august.spiritscribe.domain.model.FlavorProfile
+import com.august.spiritscribe.domain.model.FinalRating
+import com.august.spiritscribe.domain.model.WhiskeyNote
 import com.august.spiritscribe.ui.note.NoteUIM
 import com.august.spiritscribe.ui.note.toNoteUIMs
 
@@ -22,13 +21,22 @@ object FakeDataSource {
             abv = 43.0,
             price = 95.99,
             sampled = true,
-            color = ColorMeter(color = WhiskeyColor.AMBER),
+            color = ColorMeter(
+                hue = "Amber",
+                intensity = 4
+            ),
             flavors = listOf(
                 FlavorProfile(flavor = Flavor.SMOKY, intensity = 4),
                 FlavorProfile(flavor = Flavor.PEATY, intensity = 5)
             ),
             additionalNotes = "Rich and intense with a smoky finish.",
-            finalRating = FinalRating(appearance = 4.5f, taste = 4.8f, mouthfeel = 4.6f, overall = 4.7f)
+            finalRating = FinalRating(
+                appearance = 90,
+                nose = 95,
+                taste = 96,
+                finish = 92,
+                overall = 94
+            )
         ),
         WhiskeyNote(
             id = "2",
@@ -41,13 +49,22 @@ object FakeDataSource {
             abv = 40.0,
             price = 50.75,
             sampled = true,
-            color = ColorMeter(color = WhiskeyColor.GOLD),
+            color = ColorMeter(
+                hue = "Gold",
+                intensity = 3
+            ),
             flavors = listOf(
                 FlavorProfile(flavor = Flavor.FRUITY, intensity = 3),
                 FlavorProfile(flavor = Flavor.SWEET, intensity = 4)
             ),
             additionalNotes = "Smooth with hints of vanilla.",
-            finalRating = FinalRating(appearance = 4.0f, taste = 4.2f, mouthfeel = 4.1f, overall = 4.3f)
+            finalRating = FinalRating(
+                appearance = 85,
+                nose = 88,
+                taste = 84,
+                finish = 82,
+                overall = 85
+            )
         ),
         WhiskeyNote(
             id = "3",
@@ -60,13 +77,22 @@ object FakeDataSource {
             abv = 46.0,
             price = 120.99,
             sampled = false,
-            color = ColorMeter(color = WhiskeyColor.CARAMEL),
+            color = ColorMeter(
+                hue = "Caramel",
+                intensity = 5
+            ),
             flavors = listOf(
                 FlavorProfile(flavor = Flavor.WOODY, intensity = 4),
                 FlavorProfile(flavor = Flavor.VANILLA, intensity = 3)
             ),
             additionalNotes = "Complex, with a fruity aftertaste.",
-            finalRating = FinalRating(appearance = 4.3f, taste = 4.7f, mouthfeel = 4.5f, overall = 4.6f)
+            finalRating = FinalRating(
+                appearance = 92,
+                nose = 94,
+                taste = 90,
+                finish = 91,
+                overall = 92
+            )
         ),
         WhiskeyNote(
             id = "4",
@@ -79,13 +105,22 @@ object FakeDataSource {
             abv = 50.0,
             price = 85.0,
             sampled = true,
-            color = ColorMeter(color = WhiskeyColor.MAHOGANY),
+            color = ColorMeter(
+                hue = "Mahogany",
+                intensity = 4
+            ),
             flavors = listOf(
                 FlavorProfile(flavor = Flavor.PEATY, intensity = 5),
                 FlavorProfile(flavor = Flavor.SMOKY, intensity = 4)
             ),
             additionalNotes = "A bit too strong on the palate.",
-            finalRating = FinalRating(appearance = 4.2f, taste = 4.1f, mouthfeel = 4.0f, overall = 4.1f)
+            finalRating = FinalRating(
+                appearance = 84,
+                nose = 82,
+                taste = 80,
+                finish = 82,
+                overall = 82
+            )
         ),
         WhiskeyNote(
             id = "5",
@@ -98,108 +133,22 @@ object FakeDataSource {
             abv = 43.5,
             price = 140.75,
             sampled = false,
-            color = ColorMeter(color = WhiskeyColor.GOLD),
+            color = ColorMeter(
+                hue = "Gold",
+                intensity = 3
+            ),
             flavors = listOf(
                 FlavorProfile(flavor = Flavor.FRUITY, intensity = 4),
                 FlavorProfile(flavor = Flavor.SPICY, intensity = 3)
             ),
             additionalNotes = "Excellent balance of flavors.",
-            finalRating = FinalRating(appearance = 4.5f, taste = 4.8f, mouthfeel = 4.7f, overall = 4.8f)
-        ),
-        WhiskeyNote(
-            id = "6",
-            name = "Glenlivet 12",
-            distillery = "Glenlivet",
-            origin = "Scotland",
-            type = "Blended Scotch",
-            age = 12,
-            year = 2005,
-            abv = 40.0,
-            price = 59.95,
-            sampled = true,
-            color = ColorMeter(color = WhiskeyColor.AMBER),
-            flavors = listOf(
-                FlavorProfile(flavor = Flavor.SWEET, intensity = 3),
-                FlavorProfile(flavor = Flavor.FRUITY, intensity = 2)
-            ),
-            additionalNotes = "Smooth with hints of vanilla.",
-            finalRating = FinalRating(appearance = 4.0f, taste = 4.2f, mouthfeel = 4.1f, overall = 4.2f)
-        ),
-        WhiskeyNote(
-            id = "7",
-            name = "Macallan Double Cask",
-            distillery = "Macallan",
-            origin = "Scotland",
-            type = "Single Malt Scotch",
-            age = 15,
-            year = 2012,
-            abv = 46.0,
-            price = 110.99,
-            sampled = true,
-            color = ColorMeter(color = WhiskeyColor.CARAMEL),
-            flavors = listOf(
-                FlavorProfile(flavor = Flavor.WOODY, intensity = 4),
-                FlavorProfile(flavor = Flavor.SPICY, intensity = 3)
-            ),
-            additionalNotes = "Complex, with a fruity aftertaste.",
-            finalRating = FinalRating(appearance = 4.4f, taste = 4.7f, mouthfeel = 4.6f, overall = 4.7f)
-        ),
-        WhiskeyNote(
-            id = "8",
-            name = "Lagavulin 16",
-            distillery = "Lagavulin",
-            origin = "Scotland",
-            type = "Single Malt Scotch",
-            age = 16,
-            year = 2001,
-            abv = 43.0,
-            price = 95.25,
-            sampled = false,
-            color = ColorMeter(color = WhiskeyColor.AMBER),
-            flavors = listOf(
-                FlavorProfile(flavor = Flavor.PEATY, intensity = 5),
-                FlavorProfile(flavor = Flavor.SMOKY, intensity = 4)
-            ),
-            additionalNotes = "Rich and intense with a smoky finish.",
-            finalRating = FinalRating(appearance = 4.6f, taste = 4.9f, mouthfeel = 4.8f, overall = 4.8f)
-        ),
-        WhiskeyNote(
-            id = "9",
-            name = "Ardbeg 10",
-            distillery = "Ardbeg",
-            origin = "Scotland",
-            type = "Single Malt Scotch",
-            age = 10,
-            year = 2008,
-            abv = 48.2,
-            price = 75.5,
-            sampled = true,
-            color = ColorMeter(color = WhiskeyColor.MAHOGANY),
-            flavors = listOf(
-                FlavorProfile(flavor = Flavor.SMOKY, intensity = 4),
-                FlavorProfile(flavor = Flavor.SPICY, intensity = 3)
-            ),
-            additionalNotes = "A bit too strong on the palate.",
-            finalRating = FinalRating(appearance = 4.2f, taste = 4.3f, mouthfeel = 4.2f, overall = 4.3f)
-        ),
-        WhiskeyNote(
-            id = "10",
-            name = "Glenfiddich 18",
-            distillery = "Glenfiddich",
-            origin = "Scotland",
-            type = "Single Malt Scotch",
-            age = 18,
-            year = 2000,
-            abv = 43.5,
-            price = 140.75,
-            sampled = false,
-            color = ColorMeter(color = WhiskeyColor.GOLD),
-            flavors = listOf(
-                FlavorProfile(flavor = Flavor.FRUITY, intensity = 4),
-                FlavorProfile(flavor = Flavor.WOODY, intensity = 3)
-            ),
-            additionalNotes = "Excellent balance of flavors.",
-            finalRating = FinalRating(appearance = 4.5f, taste = 4.6f, mouthfeel = 4.5f, overall = 4.6f)
+            finalRating = FinalRating(
+                appearance = 96,
+                nose = 94,
+                taste = 96,
+                finish = 95,
+                overall = 95
+            )
         )
     )
 

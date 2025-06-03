@@ -1,134 +1,234 @@
 package com.august.spiritscribe.ui.note
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.august.spiritscribe.model.Flavor
-import com.august.spiritscribe.model.FlavorProfile
-import com.august.spiritscribe.ui.theme.AppTheme
-
-// FIXME - 코드 재확인
-@Composable
-fun FlavorProfileGraph() {
-    // Initialize flavor profiles with default intensities
-    val flavors = Flavor.entries.map { FlavorProfile(it, 0) }
-    val flavorProfiles = remember { mutableStateListOf(*flavors.toTypedArray()) }
-
-    Column(modifier = Modifier.padding(16.dp)) {
-        Text("Set Flavor Intensities", style = MaterialTheme.typography.headlineSmall)
-
-        // Create sliders for each flavor
-        flavorProfiles.forEach { profile ->
-            FlavorIntensityInput(
-                profile = profile,
-                onInputChange = { value ->
-                    flavorProfiles[profile.flavor.ordinal] = profile.copy(intensity = value)
-                }
-            )
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Draw the graph
-        Text("Flavor Intensity Graph", style = MaterialTheme.typography.headlineSmall)
-        FlavorIntensityGraph(flavorProfiles)
-    }
-}
+import com.august.spiritscribe.domain.model.Flavor
+import com.august.spiritscribe.domain.model.FlavorProfile
+import com.august.spiritscribe.ui.theme.SpiritScribeTheme
+import com.august.spiritscribe.ui.theme.whiskey_amber
+import com.august.spiritscribe.ui.theme.whiskey_gold
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
 
 @Composable
-fun FlavorIntensityInput(
-    profile: FlavorProfile,
-    onInputChange: (Int) -> Unit
+fun FlavorProfileGraph(
+    modifier: Modifier = Modifier,
+    profiles: List<FlavorProfile> = Flavor.entries.map { FlavorProfile(it, 0) },
+    onProfileChange: (List<FlavorProfile>) -> Unit = {}
 ) {
-    Column(modifier = Modifier.padding(vertical = 8.dp)) {
-        Text(
-            "${profile.flavor}: ${profile.intensity}",
-            style = MaterialTheme.typography.bodyMedium
-        )
-        Slider(
-            value = profile.intensity.toFloat(),
-            onValueChange = { value: Float ->
-                onInputChange(value.toInt())
-            },
-            valueRange = 0f..5f,
-            steps = 4 // 5 steps for the intensity range 0 to 5
-        )
-    }
-}
+    var flavorProfiles by remember { mutableStateOf(profiles) }
+    val textMeasurer = rememberTextMeasurer()
+    val colorScheme = MaterialTheme.colorScheme
 
-@Composable
-fun FlavorIntensityGraph(profiles: List<FlavorProfile>) {
-    val maxIntensity = 5 // Maximum intensity for scaling
-
-    // Create a row to display bars
-    Row(
-        modifier = Modifier
+    Column(
+        modifier = modifier
+            .verticalScroll(rememberScrollState())
             .fillMaxWidth()
-            .height(150.dp),
-        verticalAlignment = Alignment.Bottom,
-        horizontalArrangement = Arrangement.SpaceBetween
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        profiles.forEach { profile ->
-            val barHeight = (profile.intensity / maxIntensity.toFloat()) * 150.dp.value
-
-            // Draw each bar
+        // Radar Chart
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(300.dp)
+                .padding(24.dp)
+        ) {
             Canvas(
-                modifier = Modifier
-                    .width(20.dp)
-                    .height(150.dp)
+                modifier = Modifier.fillMaxSize()
             ) {
-                drawRect(
-                    color = Color.Blue,
-                    size = Size(
-                        width = size.width,
-                        height = barHeight
+                val centerX = size.width / 2
+                val centerY = size.height / 2
+                val radius = minOf(centerX, centerY) * 0.8f
+                val numberOfPoints = flavorProfiles.size
+                val angleStep = (2 * PI / numberOfPoints).toFloat()
+
+                // Draw background web lines
+                for (level in 1..5) {
+                    val currentRadius = radius * level / 5
+                    val path = Path()
+                    for (i in 0..numberOfPoints) {
+                        val angle = -PI.toFloat() / 2 + angleStep * i
+                        val x = centerX + currentRadius * cos(angle)
+                        val y = centerY + currentRadius * sin(angle)
+                        if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
+                    }
+                    drawPath(
+                        path = path,
+                        color = colorScheme.outline.copy(alpha = 0.2f),
+                        style = Stroke(width = 1.dp.toPx())
+                    )
+                }
+
+                // Draw spokes
+                for (i in 0 until numberOfPoints) {
+                    val angle = -PI.toFloat() / 2 + angleStep * i
+                    val endX = centerX + radius * cos(angle)
+                    val endY = centerY + radius * sin(angle)
+                    drawLine(
+                        color = colorScheme.outline.copy(alpha = 0.2f),
+                        start = Offset(centerX, centerY),
+                        end = Offset(endX, endY),
+                        strokeWidth = 1.dp.toPx()
+                    )
+
+                    // Draw labels
+                    val labelRadius = radius + 20.dp.toPx()
+                    val labelX = centerX + labelRadius * cos(angle)
+                    val labelY = centerY + labelRadius * sin(angle)
+                    
+                    drawText(
+                        textMeasurer = textMeasurer,
+                        text = flavorProfiles[i].flavor.name,
+                        style = TextStyle(
+                            fontSize = 12.sp,
+                            textAlign = TextAlign.Center,
+                            color = colorScheme.onSurface
+                        ),
+                        topLeft = Offset(
+                            labelX - 40.dp.toPx(),
+                            labelY - 8.dp.toPx()
+                        )
+                    )
+                }
+
+                // Draw flavor profile
+                val path = Path()
+                val points = flavorProfiles.mapIndexed { index, profile ->
+                    val angle = -PI.toFloat() / 2 + angleStep * index
+                    val currentRadius = radius * profile.intensity / 5
+                    val x = centerX + currentRadius * cos(angle)
+                    val y = centerY + currentRadius * sin(angle)
+                    Offset(x, y)
+                }
+
+                points.forEachIndexed { index, offset ->
+                    if (index == 0) path.moveTo(offset.x, offset.y)
+                    else path.lineTo(offset.x, offset.y)
+                }
+                path.close()
+
+                // Draw filled area with gradient
+                drawPath(
+                    path = path,
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            whiskey_amber.copy(alpha = 0.3f),
+                            whiskey_gold.copy(alpha = 0.1f)
+                        ),
+                        center = Offset(centerX, centerY),
+                        radius = radius
                     )
                 )
+
+                // Draw outline
+                drawPath(
+                    path = path,
+                    color = colorScheme.primary,
+                    style = Stroke(
+                        width = 2.dp.toPx(),
+                        cap = StrokeCap.Round
+                    )
+                )
+
+                // Draw points
+                points.forEach { point ->
+                    drawCircle(
+                        color = colorScheme.primary,
+                        radius = 4.dp.toPx(),
+                        center = point
+                    )
+                }
+            }
+        }
+
+        // Sliders
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = "Flavor Intensity",
+                style = MaterialTheme.typography.titleMedium,
+                color = colorScheme.onSurface
+            )
+            
+            flavorProfiles.forEachIndexed { index, profile ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = profile.flavor.name,
+                        modifier = Modifier.width(100.dp),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = colorScheme.onSurfaceVariant
+                    )
+                    Slider(
+                        modifier = Modifier.weight(1f),
+                        value = profile.intensity.toFloat(),
+                        onValueChange = { value ->
+                            val newProfiles = flavorProfiles.toMutableList()
+                            newProfiles[index] = profile.copy(intensity = value.toInt())
+                            flavorProfiles = newProfiles
+                            onProfileChange(newProfiles)
+                        },
+                        valueRange = 0f..5f,
+                        steps = 4,
+                        colors = SliderDefaults.colors(
+                            thumbColor = colorScheme.primary,
+                            activeTrackColor = colorScheme.primary,
+                            inactiveTrackColor = colorScheme.primary.copy(alpha = 0.2f)
+                        )
+                    )
+                    Text(
+                        text = "${profile.intensity}",
+                        modifier = Modifier.width(24.dp),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
     }
-
-    // Add labels below the bars
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        profiles.forEach { profile ->
-            Text(
-                text = profile.flavor.name.take(3), // Shorten flavor names to 3 letters
-                fontSize = 12.sp
-            )
-        }
-    }
 }
 
-@Composable
 @Preview(showBackground = true)
+@Composable
 fun FlavorProfileGraphPreview() {
-    AppTheme {
-        Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-            FlavorProfileGraph()
+    SpiritScribeTheme {
+        Surface(
+            color = MaterialTheme.colorScheme.background
+        ) {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                FlavorProfileGraph(
+                    profiles = Flavor.entries.map { 
+                        FlavorProfile(it, (0..5).random()) 
+                    }
+                )
+            }
         }
     }
 }

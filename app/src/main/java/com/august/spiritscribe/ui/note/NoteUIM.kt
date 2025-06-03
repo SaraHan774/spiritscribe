@@ -1,6 +1,6 @@
 package com.august.spiritscribe.ui.note
 
-import com.august.spiritscribe.model.WhiskeyNote
+import com.august.spiritscribe.domain.model.WhiskeyNote
 
 data class NoteUIM(
     val id: String,

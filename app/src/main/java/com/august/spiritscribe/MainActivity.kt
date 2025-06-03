@@ -20,14 +20,14 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.august.spiritscribe.ui.theme.AppTheme
+import com.august.spiritscribe.ui.theme.SpiritScribeTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            AppTheme {
+            SpiritScribeTheme {
                 App()
             }
         }
@@ -79,7 +79,7 @@ private fun App() {
 )
 @Composable
 fun AppPreview() {
-    AppTheme {
+    SpiritScribeTheme {
         App()
     }
 }

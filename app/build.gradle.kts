@@ -64,6 +64,14 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
     implementation(libs.androidx.material.icons.extended)
+    
+    // Room dependencies
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.compose.material)
+    kapt(libs.androidx.room.compiler)
+    testImplementation(libs.androidx.room.testing)
+    
     kapt(libs.hilt.android.compiler)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
@@ -75,4 +83,5 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation("com.google.accompanist:accompanist-drawablepainter:0.35.0-alpha")
 }
