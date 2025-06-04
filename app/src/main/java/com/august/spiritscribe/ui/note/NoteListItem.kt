@@ -70,7 +70,7 @@ fun NoteListItem(
                                 sharedContentState = sharedTransitionScope.rememberSharedContentState(key = "image${uim.id}")
                             )
                             .fillMaxSize(),
-                        painter = painterResource(R.drawable.macallan),
+                        painter = painterResource(R.drawable.ic_launcher_foreground),
                         contentScale = ContentScale.Crop,
                         contentDescription = null
                     )
