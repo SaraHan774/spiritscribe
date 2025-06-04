@@ -18,17 +18,21 @@ activityCompose = "1.10.1"
 composeBom = "2025.05.01"
 materialIconsExtended = "1.7.8"
 mockk = "1.13.12"
+pagingCompose = "3.3.6"
 turbineVersion = "1.2.0"
 uiTextGoogleFonts = "1.8.2"
 navigationCompose = "2.9.0"
 room = "2.7.1"
 composeMaterial = "1.4.1"
+pagingCommonAndroid = "3.3.6"
 
 [libraries]
 accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "accompanistDrawablepainter" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
+androidx-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "pagingCompose" }
+androidx-paging-runtime = { module = "androidx.paging:paging-runtime", version.ref = "pagingCompose" }
 app-turbine = { module = "app.cash.turbine:turbine", version.ref = "turbineVersion" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilNetworkOkhttp" }
 coil-compose-v320 = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
@@ -59,6 +63,7 @@ androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = 
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 androidx-room-testing = { group = "androidx.room", name = "room-testing", version.ref = "room" }
 androidx-compose-material = { group = "androidx.wear.compose", name = "compose-material", version.ref = "composeMaterial" }
+androidx-paging-common-android = { group = "androidx.paging", name = "paging-common-android", version.ref = "pagingCommonAndroid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

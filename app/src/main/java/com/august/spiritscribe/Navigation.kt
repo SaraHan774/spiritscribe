@@ -29,9 +29,11 @@ import com.august.spiritscribe.ui.note.NewThreadScreen
 import com.august.spiritscribe.ui.note.NoteDetailRoute
 import com.august.spiritscribe.ui.note.NoteListRoute
 import com.august.spiritscribe.ui.search.SearchRoute
+import com.august.spiritscribe.ui.search.SearchScreen
 import com.august.spiritscribe.ui.whiskey.AddWhiskeyScreen
 import com.august.spiritscribe.ui.whiskey.WhiskeyDetailRoute
 import com.august.spiritscribe.ui.profile.ProfileScreen
+import com.august.spiritscribe.ui.feed.FeedScreen
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -120,7 +122,12 @@ fun NavController.navigateToAddWhiskey() {
 
 // NavGraphBuilder extension functions
 fun NavGraphBuilder.feedDestination() {
-    composable<Feed> { FeedRoute() }
+    composable<Feed> {
+        FeedScreen(
+            onNoteClick = { id -> /* TODO: Navigate to note detail */ },
+            onUserClick = { userId -> /* TODO: Navigate to user profile */ }
+        )
+    }
 }
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -167,7 +174,11 @@ fun NavGraphBuilder.noteDestination(
 }
 
 fun NavGraphBuilder.searchDestination() {
-    composable<Search> { SearchRoute() }
+    composable<Search> {
+        SearchScreen(
+            onWhiskeyClick = { id -> /* TODO: Navigate to whiskey detail */ }
+        )
+    }
 }
 
 fun NavGraphBuilder.profileDestination() {

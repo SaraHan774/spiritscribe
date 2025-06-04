@@ -65,6 +65,7 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.compose.material)
+    implementation(libs.androidx.paging.common.android)
     ksp(libs.androidx.room.compiler)
     testImplementation(libs.androidx.room.testing)
     
@@ -86,4 +87,7 @@ dependencies {
 
     implementation(libs.coil.compose.v320)
     implementation(libs.coil.network.okhttp.v320)
+
+    implementation(libs.androidx.paging.runtime) // For non-Compose parts
+    implementation(libs.androidx.paging.compose) // <-- THIS IS NEEDED
 }
