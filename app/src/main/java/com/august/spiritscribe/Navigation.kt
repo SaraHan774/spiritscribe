@@ -72,7 +72,8 @@ val topLevelRoutes = listOf(
 val hideBottomNavigationRoutes = listOf(
     AddWhiskey::class,
     AddNote::class,
-    NoteDetail::class
+    NoteDetail::class,
+    WhiskeyDetail::class
 )
 
 @OptIn(ExperimentalSharedTransitionApi::class)
