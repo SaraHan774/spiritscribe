@@ -26,8 +26,8 @@ object FakeDataSource {
                 intensity = 4
             ),
             flavors = listOf(
-                FlavorProfile(flavor = Flavor.SMOKY, intensity = 4),
-                FlavorProfile(flavor = Flavor.PEATY, intensity = 5)
+                FlavorProfile(flavor = Flavor.VANILLA, intensity = 4),
+                FlavorProfile(flavor = Flavor.HERB, intensity = 5)
             ),
             additionalNotes = "Rich and intense with a smoky finish.",
             finalRating = FinalRating(
@@ -54,8 +54,8 @@ object FakeDataSource {
                 intensity = 3
             ),
             flavors = listOf(
-                FlavorProfile(flavor = Flavor.FRUITY, intensity = 3),
-                FlavorProfile(flavor = Flavor.SWEET, intensity = 4)
+                FlavorProfile(flavor = Flavor.HERB, intensity = 3),
+                FlavorProfile(flavor = Flavor.HERB, intensity = 4)
             ),
             additionalNotes = "Smooth with hints of vanilla.",
             finalRating = FinalRating(
@@ -82,7 +82,7 @@ object FakeDataSource {
                 intensity = 5
             ),
             flavors = listOf(
-                FlavorProfile(flavor = Flavor.WOODY, intensity = 4),
+                FlavorProfile(flavor = Flavor.HERB, intensity = 4),
                 FlavorProfile(flavor = Flavor.VANILLA, intensity = 3)
             ),
             additionalNotes = "Complex, with a fruity aftertaste.",
@@ -110,8 +110,8 @@ object FakeDataSource {
                 intensity = 4
             ),
             flavors = listOf(
-                FlavorProfile(flavor = Flavor.PEATY, intensity = 5),
-                FlavorProfile(flavor = Flavor.SMOKY, intensity = 4)
+                FlavorProfile(flavor = Flavor.HERB, intensity = 5),
+                FlavorProfile(flavor = Flavor.HERB, intensity = 4)
             ),
             additionalNotes = "A bit too strong on the palate.",
             finalRating = FinalRating(
@@ -138,8 +138,8 @@ object FakeDataSource {
                 intensity = 3
             ),
             flavors = listOf(
-                FlavorProfile(flavor = Flavor.FRUITY, intensity = 4),
-                FlavorProfile(flavor = Flavor.SPICY, intensity = 3)
+                FlavorProfile(flavor = Flavor.HERB, intensity = 4),
+                FlavorProfile(flavor = Flavor.HERB, intensity = 3)
             ),
             additionalNotes = "Excellent balance of flavors.",
             finalRating = FinalRating(

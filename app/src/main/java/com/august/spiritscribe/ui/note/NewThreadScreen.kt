@@ -331,29 +331,32 @@ fun NewThreadItem(
                             enter = expandVertically() + fadeIn(),
                             exit = shrinkVertically() + fadeOut()
                         ) {
-                            Column {
-                                Spacer(modifier = Modifier.height(16.dp))
-                                
-                                FlavorProfileGraph(
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 16.dp)
+                            ) {
+                                Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .height(500.dp)
-                                        .padding(horizontal = 8.dp),
-                                    profiles = flavorProfiles,
-                                    onProfileChange = { newProfiles ->
-                                        flavorProfiles = newProfiles
-                                    }
-                                )
+                                        .aspectRatio(1f)
+                                ) {
+                                    FlavorProfileGraph(
+                                        modifier = Modifier.fillMaxSize(),
+                                        profiles = flavorProfiles,
+                                        onProfileChange = { newProfiles ->
+                                            flavorProfiles = newProfiles
+                                        }
+                                    )
+                                }
                             }
                         }
-                        
+
                         if (!isFlavorProfileExpanded) {
                             FlavorProfilePreview(
                                 modifier = Modifier
-                                    .horizontalScroll(rememberScrollState())
                                     .fillMaxWidth()
-                                    .wrapContentHeight()
-                                    .padding(top = 8.dp),
+                                    .wrapContentHeight(),
                                 profiles = flavorProfiles
                             )
                         }
@@ -463,7 +466,9 @@ private fun ActionButtonRow(
     val colorScheme = MaterialTheme.colorScheme
     
     Row(
-        modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState()),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         ActionButton(
@@ -527,33 +532,24 @@ private fun FlavorProfilePreview(
     modifier: Modifier = Modifier,
     profiles: List<FlavorProfile>
 ) {
-    val colorScheme = MaterialTheme.colorScheme
-    
-    Row(
+    LazyRow(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        profiles.forEach { profile ->
-            if (profile.intensity > 0) {
-                FilterChip(
-                    selected = false,
-                    onClick = { },
-                    label = {
-                        Text(
-                            text = "${profile.flavor.name}: ${profile.intensity}",
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    },
-                    colors = FilterChipDefaults.filterChipColors(
-                        containerColor = colorScheme.surfaceVariant.copy(alpha = 0.7f),
-                        labelColor = colorScheme.onSurfaceVariant,
-                        selectedContainerColor = colorScheme.primary,
-                        selectedLabelColor = colorScheme.onPrimary
-                    ),
-                    border = null,
-                    modifier = Modifier.height(32.dp)
+        items(profiles.filter { it.intensity > 0 }) { profile ->
+            AssistChip(
+                onClick = { },
+                label = {
+                    Text(
+                        text = "${profile.flavor.name}: ${profile.intensity}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                },
+                colors = AssistChipDefaults.assistChipColors(
+                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                    labelColor = MaterialTheme.colorScheme.primary
                 )
-            }
+            )
         }
     }
 }

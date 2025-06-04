@@ -31,8 +31,65 @@ data class FlavorProfile(
 )
 
 enum class Flavor {
-    SWEET, SPICY, SMOKY, FRUITY, WOODY, PEATY, COFFEE, MINTY, 
-    NUTTY, HERBAL, FLORAL, DARK_FRUIT, CITRUS, VANILLA
+    MALT {      // Grainy, cereal notes
+        override val emoji = "🌾"
+        override val displayName = "$emoji Malt"
+    },
+    FRUIT {     // Fresh fruits
+        override val emoji = "🍎"
+        override val displayName = "$emoji Fruit"
+    },
+    DRIED {     // Dried fruits, raisins
+        override val emoji = "🍇"
+        override val displayName = "$emoji Dried"
+    },
+    FLORAL {    // Flowers, botanical
+        override val emoji = "🌸"
+        override val displayName = "$emoji Floral"
+    },
+    CITRUS {    // Orange, lemon
+        override val emoji = "🍊"
+        override val displayName = "$emoji Citrus"
+    },
+    SPICE {     // Pepper, cinnamon
+        override val emoji = "🌶️"
+        override val displayName = "$emoji Spice"
+    },
+    WOOD {      // Oak, cedar
+        override val emoji = "🪵"
+        override val displayName = "$emoji Wood"
+    },
+    PEAT {      // Smoky, earthy
+        override val emoji = "💨"
+        override val displayName = "$emoji Peat"
+    },
+    NUTS {      // Almond, walnut
+        override val emoji = "🥜"
+        override val displayName = "$emoji Nuts"
+    },
+    TOFFEE {    // Caramel, butterscotch
+        override val emoji = "🍯"
+        override val displayName = "$emoji Toffee"
+    },
+    VANILLA {   // Vanilla, cream
+        override val emoji = "🍶"
+        override val displayName = "$emoji Vanilla"
+    },
+    HONEY {     // Sweet, nectar
+        override val emoji = "🍯"
+        override val displayName = "$emoji Honey"
+    },
+    HERB {      // Fresh herbs
+        override val emoji = "🌿"
+        override val displayName = "$emoji Herb"
+    },
+    CHAR {      // Charred wood, tobacco
+        override val emoji = "🔥"
+        override val displayName = "$emoji Char"
+    };
+
+    abstract val emoji: String
+    abstract val displayName: String
 }
 
 data class ColorMeter(

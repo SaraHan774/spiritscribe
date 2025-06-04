@@ -16,10 +16,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material.icons.outlined.Tune
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -321,14 +324,14 @@ private fun SpiderGraph(
             
             drawText(
                 textMeasurer = textMeasurer,
-                text = flavorProfiles[i].flavor.name,
+                text = flavorProfiles[i].flavor.displayName,
                 style = TextStyle(
                     fontSize = if (isCompactScreen) 10.sp else 12.sp,
                     textAlign = TextAlign.Center,
                     color = colorScheme.onSurface
                 ),
                 topLeft = Offset(
-                    labelX - (if (isCompactScreen) 30.dp else 40.dp).toPx(),
+                    labelX - (if (isCompactScreen) 40.dp else 50.dp).toPx(),
                     labelY - (if (isCompactScreen) 6.dp else 8.dp).toPx()
                 )
             )
@@ -461,7 +464,7 @@ private fun FlavorSliderItem(
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Text(
-            text = profile.flavor.name,
+            text = profile.flavor.displayName,
             style = MaterialTheme.typography.bodyMedium,
             color = colorScheme.onSurfaceVariant
         )
@@ -503,6 +506,33 @@ fun FlavorProfileGraphPreview() {
                 profiles = Flavor.entries.map { 
                     FlavorProfile(it, (0..5).random()) 
                 }
+            )
+        }
+    }
+}
+
+@Composable
+private fun FlavorProfilePreview(
+    modifier: Modifier = Modifier,
+    profiles: List<FlavorProfile>
+) {
+    LazyRow(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(profiles.filter { it.intensity > 0 }) { profile ->
+            AssistChip(
+                onClick = { },
+                label = {
+                    Text(
+                        text = "${profile.flavor.emoji} ${profile.intensity}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                },
+                colors = AssistChipDefaults.assistChipColors(
+                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                    labelColor = MaterialTheme.colorScheme.primary
+                )
             )
         }
     }
