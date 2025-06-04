@@ -30,6 +30,7 @@ import com.august.spiritscribe.ui.note.NoteDetailRoute
 import com.august.spiritscribe.ui.note.NoteListRoute
 import com.august.spiritscribe.ui.search.SearchRoute
 import com.august.spiritscribe.ui.whiskey.AddWhiskeyScreen
+import com.august.spiritscribe.ui.whiskey.WhiskeyDetailRoute
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -40,6 +41,11 @@ data object AddNote
 
 @Serializable
 data class NoteDetail(val id: String)
+
+@Serializable
+data class WhiskeyDetail(
+    val id: String
+)
 
 @Serializable
 data object MyNoteList
@@ -80,6 +86,7 @@ fun AppNavigation(modifier: Modifier = Modifier, navController: NavHostControlle
         ) {
             noteDestination(
                 navigateToNoteDetail = { id: String -> navController.navigateToNoteDetail(id) },
+                navigateToWhiskeyDetail = { id: String -> navController.navigateToWhiskeyDetail(id) },
                 navigateToAddWhiskey = { navController.navigateToAddWhiskey() },
                 navigateToAddNote = { navController.navigateToAddNote() },
                 onNavigateBack = { navController.popBackStack() },
@@ -95,6 +102,10 @@ fun AppNavigation(modifier: Modifier = Modifier, navController: NavHostControlle
 // NavController extension functions
 fun NavController.navigateToNoteDetail(id: String) {
     navigate(route = NoteDetail(id))
+}
+
+fun NavController.navigateToWhiskeyDetail(id: String) {
+    navigate(route = WhiskeyDetail(id))
 }
 
 fun NavController.navigateToAddNote() {
@@ -113,6 +124,7 @@ fun NavGraphBuilder.feedDestination() {
 @OptIn(ExperimentalSharedTransitionApi::class)
 fun NavGraphBuilder.noteDestination(
     navigateToNoteDetail: (String) -> Unit,
+    navigateToWhiskeyDetail: (String) -> Unit,
     navigateToAddWhiskey: () -> Unit,
     navigateToAddNote: () -> Unit,
     onNavigateBack: () -> Unit,
@@ -120,7 +132,7 @@ fun NavGraphBuilder.noteDestination(
 ) {
     composable<MyNoteList> {
         NoteListRoute(
-            navigateToNoteDetail = navigateToNoteDetail,
+            navigateToWhiskeyDetail = navigateToWhiskeyDetail,
             navigateToAddWhiskey = navigateToAddWhiskey,
             sharedTransitionScope = sharedTransitionScope,
             animatedContentScope = this@composable,
@@ -133,6 +145,15 @@ fun NavGraphBuilder.noteDestination(
             sharedTransitionScope = sharedTransitionScope,
             animatedContentScope = this@composable,
             onClickAddNote = navigateToAddNote
+        )
+    }
+    composable<WhiskeyDetail> { navBackStackEntry: NavBackStackEntry ->
+        val detail: WhiskeyDetail = navBackStackEntry.toRoute()
+        navBackStackEntry.savedStateHandle["id"] = detail.id
+        WhiskeyDetailRoute(
+            whiskeyId = detail.id,
+            onAddNote = navigateToAddNote,
+            modifier = Modifier.fillMaxSize()
         )
     }
     composable<AddNote> { AddNoteRoute() }

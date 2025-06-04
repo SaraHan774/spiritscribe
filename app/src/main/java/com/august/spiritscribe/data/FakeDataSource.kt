@@ -1,7 +1,6 @@
 package com.august.spiritscribe.data
 
 import com.august.spiritscribe.ui.note.NoteUIM
-import java.util.UUID
 
 object FakeDataSource {
     fun getNoteUIM(): List<NoteUIM> = listOf(

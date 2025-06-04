@@ -22,11 +22,19 @@ object DatabaseModule {
     fun provideDatabase(
         @ApplicationContext context: Context
     ): SpiritScribeDatabase {
+        android.util.Log.d("DatabaseModule", "Creating database instance")
         return Room.databaseBuilder(
             context,
             SpiritScribeDatabase::class.java,
             "spiritscribe.db"
-        ).build()
+        )
+        .fallbackToDestructiveMigration()
+        .addCallback(SpiritScribeDatabase.callback)
+        .build()
+        .also { 
+            android.util.Log.d("DatabaseModule", "Database instance created")
+            SpiritScribeDatabase.setInstance(it)
+        }
     }
 
     @Provides
