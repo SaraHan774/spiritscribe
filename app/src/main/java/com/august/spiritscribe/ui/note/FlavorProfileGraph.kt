@@ -59,7 +59,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.august.spiritscribe.domain.model.Flavor
-import com.august.spiritscribe.domain.model.FlavorProfile
+import com.august.spiritscribe.domain.model.FlavorIntensity
 import com.august.spiritscribe.ui.theme.SpiritScribeTheme
 import com.august.spiritscribe.ui.theme.whiskey_amber
 import com.august.spiritscribe.ui.theme.whiskey_gold
@@ -75,8 +75,8 @@ import kotlin.math.sqrt
 @Composable
 fun FlavorProfileGraph(
     modifier: Modifier = Modifier,
-    profiles: List<FlavorProfile> = Flavor.entries.map { FlavorProfile(it, 0) },
-    onProfileChange: (List<FlavorProfile>) -> Unit = {}
+    profiles: List<FlavorIntensity> = Flavor.entries.map { FlavorIntensity(it, 0) },
+    onProfileChange: (List<FlavorIntensity>) -> Unit = {}
 ) {
     var flavorProfiles by remember { mutableStateOf(profiles) }
     var useTouchInput by remember { mutableStateOf(true) }
@@ -161,7 +161,7 @@ fun FlavorProfileGraph(
                         }
                 ) {
                     SpiderGraph(
-                        flavorProfiles = flavorProfiles,
+                        flavorIntensities = flavorProfiles,
                         onProfileChange = { newProfiles ->
                             flavorProfiles = newProfiles
                             onProfileChange(newProfiles)
@@ -193,7 +193,7 @@ fun FlavorProfileGraph(
                         }
                 ) {
                     SliderPanel(
-                        flavorProfiles = flavorProfiles,
+                        flavorIntensities = flavorProfiles,
                         onProfileChange = { newProfiles ->
                             flavorProfiles = newProfiles
                             onProfileChange(newProfiles)
@@ -209,8 +209,8 @@ fun FlavorProfileGraph(
 
 @Composable
 private fun SpiderGraph(
-    flavorProfiles: List<FlavorProfile>,
-    onProfileChange: (List<FlavorProfile>) -> Unit,
+    flavorIntensities: List<FlavorIntensity>,
+    onProfileChange: (List<FlavorIntensity>) -> Unit,
     isCompactScreen: Boolean,
     useTouchInput: Boolean,
     textMeasurer: TextMeasurer,
@@ -231,11 +231,11 @@ private fun SpiderGraph(
             }
             .then(
                 if (useTouchInput) {
-                    Modifier.pointerInput(flavorProfiles) {
+                    Modifier.pointerInput(flavorIntensities) {
                         detectTapGestures { offset ->
                             if (radius <= 0f) return@detectTapGestures
                             
-                            val numberOfPoints = flavorProfiles.size
+                            val numberOfPoints = flavorIntensities.size
                             val angleStep = (2 * PI / numberOfPoints).toFloat()
                             
                             // Calculate angle from center to touch point
@@ -263,8 +263,8 @@ private fun SpiderGraph(
                                 .roundToInt()
                             
                             // Update the profile while preserving other values
-                            if (spokeIndex in flavorProfiles.indices) {
-                                val newProfiles = flavorProfiles.toMutableList()
+                            if (spokeIndex in flavorIntensities.indices) {
+                                val newProfiles = flavorIntensities.toMutableList()
                                 newProfiles[spokeIndex] = newProfiles[spokeIndex].copy(
                                     intensity = newIntensity
                                 )
@@ -285,7 +285,7 @@ private fun SpiderGraph(
             onSizeChange(newCanvasSize, newCenterPoint, newRadius)
         }
         
-        val numberOfPoints = flavorProfiles.size
+        val numberOfPoints = flavorIntensities.size
         val angleStep = (2 * PI / numberOfPoints).toFloat()
 
         // Draw background web lines
@@ -324,7 +324,7 @@ private fun SpiderGraph(
             
             drawText(
                 textMeasurer = textMeasurer,
-                text = flavorProfiles[i].flavor.displayName,
+                text = flavorIntensities[i].flavor.displayName,
                 style = TextStyle(
                     fontSize = if (isCompactScreen) 10.sp else 12.sp,
                     textAlign = TextAlign.Center,
@@ -339,7 +339,7 @@ private fun SpiderGraph(
 
         // Draw flavor profile
         val path = Path()
-        val points = flavorProfiles.mapIndexed { index, profile ->
+        val points = flavorIntensities.mapIndexed { index, profile ->
             val angle = -PI.toFloat() / 2 + angleStep * index
             val currentRadius = radius * profile.intensity / 5
             val x = centerPoint.x + currentRadius * cos(angle)
@@ -389,8 +389,8 @@ private fun SpiderGraph(
 
 @Composable
 private fun SliderPanel(
-    flavorProfiles: List<FlavorProfile>,
-    onProfileChange: (List<FlavorProfile>) -> Unit,
+    flavorIntensities: List<FlavorIntensity>,
+    onProfileChange: (List<FlavorIntensity>) -> Unit,
     isCompactScreen: Boolean,
     colorScheme: ColorScheme
 ) {
@@ -408,12 +408,12 @@ private fun SliderPanel(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(flavorProfiles) { profile ->
+                items(flavorIntensities) { profile ->
                     FlavorSliderItem(
                         profile = profile,
                         onIntensityChange = { newIntensity ->
-                            val index = flavorProfiles.indexOf(profile)
-                            val newProfiles = flavorProfiles.toMutableList()
+                            val index = flavorIntensities.indexOf(profile)
+                            val newProfiles = flavorIntensities.toMutableList()
                             newProfiles[index] = profile.copy(intensity = newIntensity)
                             onProfileChange(newProfiles)
                         }
@@ -425,7 +425,7 @@ private fun SliderPanel(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                flavorProfiles.chunked(2).forEach { rowProfiles ->
+                flavorIntensities.chunked(2).forEach { rowProfiles ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -435,8 +435,8 @@ private fun SliderPanel(
                                 FlavorSliderItem(
                                     profile = profile,
                                     onIntensityChange = { newIntensity ->
-                                        val index = flavorProfiles.indexOf(profile)
-                                        val newProfiles = flavorProfiles.toMutableList()
+                                        val index = flavorIntensities.indexOf(profile)
+                                        val newProfiles = flavorIntensities.toMutableList()
                                         newProfiles[index] = profile.copy(intensity = newIntensity)
                                         onProfileChange(newProfiles)
                                     }
@@ -455,7 +455,7 @@ private fun SliderPanel(
 
 @Composable
 private fun FlavorSliderItem(
-    profile: FlavorProfile,
+    profile: FlavorIntensity,
     onIntensityChange: (Int) -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
@@ -504,7 +504,7 @@ fun FlavorProfileGraphPreview() {
         ) {
             FlavorProfileGraph(
                 profiles = Flavor.entries.map { 
-                    FlavorProfile(it, (0..5).random()) 
+                    FlavorIntensity(it, (0..5).random())
                 }
             )
         }
@@ -514,7 +514,7 @@ fun FlavorProfileGraphPreview() {
 @Composable
 private fun FlavorProfilePreview(
     modifier: Modifier = Modifier,
-    profiles: List<FlavorProfile>
+    profiles: List<FlavorIntensity>
 ) {
     LazyRow(
         modifier = modifier,

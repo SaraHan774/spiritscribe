@@ -16,6 +16,10 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,29 +37,49 @@ import com.august.spiritscribe.R
 @Composable
 fun NoteListRoute(
     navigateToNoteDetail: (String) -> Unit,
+    navigateToAddWhiskey: () -> Unit,
     sharedTransitionScope: SharedTransitionScope,
     animatedContentScope: AnimatedContentScope,
 ) {
     val uimList = FakeDataSource.getNoteUIM()
-    Column(
+    Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+        Column(
+            modifier = Modifier.fillMaxSize()
         ) {
-            items(uimList) { uim ->
-                NoteListItem(
-                    modifier = Modifier.padding(
-                        vertical = 4.dp, horizontal = 8.dp
-                    ),
-                    uim = uim,
-                    onClickItem = { item -> navigateToNoteDetail(item.id) },
-                    sharedTransitionScope,
-                    animatedContentScope,
-                )
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                items(uimList) { uim ->
+                    NoteListItem(
+                        modifier = Modifier.padding(
+                            vertical = 4.dp, horizontal = 8.dp
+                        ),
+                        uim = uim,
+                        onClickItem = { item -> navigateToNoteDetail(item.id) },
+                        sharedTransitionScope,
+                        animatedContentScope,
+                    )
+                }
             }
+        }
+        
+        // Add Whiskey FAB
+        FloatingActionButton(
+            onClick = navigateToAddWhiskey,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp),
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+        ) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "Add Whiskey"
+            )
         }
     }
 }

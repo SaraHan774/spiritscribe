@@ -2,7 +2,9 @@ package com.august.spiritscribe.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.august.spiritscribe.domain.model.*
+import com.august.spiritscribe.domain.model.ColorMeter
+import com.august.spiritscribe.domain.model.FinalRating
+import com.august.spiritscribe.domain.model.WhiskeyNote
 
 @Entity(tableName = "whiskey_notes")
 data class WhiskeyNoteEntity(
@@ -17,18 +19,14 @@ data class WhiskeyNoteEntity(
     val abv: Double,
     val price: Double?,
     val sampled: Boolean,
-    val colorHue: String,
-    val colorIntensity: Int,
-    val flavors: List<FlavorProfileEntity>,
+    val colorHue: String?,
+    val colorIntensity: Int?,
     val additionalNotes: String,
-    val ratingAppearance: Int,
-    val ratingNose: Int,
-    val ratingTaste: Int,
-    val ratingFinish: Int,
-    val ratingOverall: Int,
-    val createdAt: Long,
-    val updatedAt: Long,
-    val userId: String?
+    val appearance: Int?,
+    val nose: Int?,
+    val taste: Int?,
+    val finish: Int?,
+    val overall: Int?
 ) {
     fun toDomain(): WhiskeyNote = WhiskeyNote(
         id = id,
@@ -42,21 +40,18 @@ data class WhiskeyNoteEntity(
         price = price,
         sampled = sampled,
         color = ColorMeter(
-            hue = colorHue,
-            intensity = colorIntensity
+            hue = colorHue ?: "",
+            intensity = colorIntensity ?: 0
         ),
-        flavors = flavors.map { it.toDomain() },
+        flavors = emptyList(), // Flavors are loaded separately through FlavorProfileDao
         additionalNotes = additionalNotes,
         finalRating = FinalRating(
-            appearance = ratingAppearance,
-            nose = ratingNose,
-            taste = ratingTaste,
-            finish = ratingFinish,
-            overall = ratingOverall
-        ),
-        createdAt = createdAt,
-        updatedAt = updatedAt,
-        userId = userId
+            appearance = appearance ?: 0,
+            nose = nose ?: 0,
+            taste = taste ?: 0,
+            finish = finish ?: 0,
+            overall = overall ?: 0
+        )
     )
 
     companion object {
@@ -73,33 +68,12 @@ data class WhiskeyNoteEntity(
             sampled = note.sampled,
             colorHue = note.color.hue,
             colorIntensity = note.color.intensity,
-            flavors = note.flavors.map { FlavorProfileEntity.fromDomain(it) },
             additionalNotes = note.additionalNotes,
-            ratingAppearance = note.finalRating.appearance,
-            ratingNose = note.finalRating.nose,
-            ratingTaste = note.finalRating.taste,
-            ratingFinish = note.finalRating.finish,
-            ratingOverall = note.finalRating.overall,
-            createdAt = note.createdAt,
-            updatedAt = note.updatedAt,
-            userId = note.userId
+            appearance = note.finalRating.appearance,
+            nose = note.finalRating.nose,
+            taste = note.finalRating.taste,
+            finish = note.finalRating.finish,
+            overall = note.finalRating.overall
         )
     }
 }
-
-data class FlavorProfileEntity(
-    val flavor: String,
-    val intensity: Int
-) {
-    fun toDomain() = FlavorProfile(
-        flavor = Flavor.valueOf(flavor),
-        intensity = intensity
-    )
-
-    companion object {
-        fun fromDomain(profile: FlavorProfile) = FlavorProfileEntity(
-            flavor = profile.flavor.name,
-            intensity = profile.intensity
-        )
-    }
-} 

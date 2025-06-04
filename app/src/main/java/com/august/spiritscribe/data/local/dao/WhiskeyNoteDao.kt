@@ -25,9 +25,9 @@ interface WhiskeyNoteDao {
         AND (:origin IS NULL OR origin = :origin)
         AND (:minPrice IS NULL OR price >= :minPrice)
         AND (:maxPrice IS NULL OR price <= :maxPrice)
-        AND (:minRating IS NULL OR ratingOverall >= :minRating)
+        AND (:minRating IS NULL OR overall >= :minRating)
         AND (:sampledOnly = 0 OR sampled = 1)
-        ORDER BY createdAt DESC
+        ORDER BY name DESC
     """)
     fun getNotesByCreatedDesc(
         searchQuery: String = "",
@@ -46,9 +46,9 @@ interface WhiskeyNoteDao {
         AND (:origin IS NULL OR origin = :origin)
         AND (:minPrice IS NULL OR price >= :minPrice)
         AND (:maxPrice IS NULL OR price <= :maxPrice)
-        AND (:minRating IS NULL OR ratingOverall >= :minRating)
+        AND (:minRating IS NULL OR overall >= :minRating)
         AND (:sampledOnly = 0 OR sampled = 1)
-        ORDER BY createdAt ASC
+        ORDER BY name ASC
     """)
     fun getNotesByCreatedAsc(
         searchQuery: String = "",
@@ -67,7 +67,7 @@ interface WhiskeyNoteDao {
         AND (:origin IS NULL OR origin = :origin)
         AND (:minPrice IS NULL OR price >= :minPrice)
         AND (:maxPrice IS NULL OR price <= :maxPrice)
-        AND (:minRating IS NULL OR ratingOverall >= :minRating)
+        AND (:minRating IS NULL OR overall >= :minRating)
         AND (:sampledOnly = 0 OR sampled = 1)
         ORDER BY name ASC
     """)
@@ -88,7 +88,7 @@ interface WhiskeyNoteDao {
         AND (:origin IS NULL OR origin = :origin)
         AND (:minPrice IS NULL OR price >= :minPrice)
         AND (:maxPrice IS NULL OR price <= :maxPrice)
-        AND (:minRating IS NULL OR ratingOverall >= :minRating)
+        AND (:minRating IS NULL OR overall >= :minRating)
         AND (:sampledOnly = 0 OR sampled = 1)
         ORDER BY name DESC
     """)
@@ -109,9 +109,9 @@ interface WhiskeyNoteDao {
         AND (:origin IS NULL OR origin = :origin)
         AND (:minPrice IS NULL OR price >= :minPrice)
         AND (:maxPrice IS NULL OR price <= :maxPrice)
-        AND (:minRating IS NULL OR ratingOverall >= :minRating)
+        AND (:minRating IS NULL OR overall >= :minRating)
         AND (:sampledOnly = 0 OR sampled = 1)
-        ORDER BY ratingOverall DESC
+        ORDER BY overall DESC
     """)
     fun getNotesByRatingDesc(
         searchQuery: String = "",
@@ -128,7 +128,7 @@ interface WhiskeyNoteDao {
         WHERE name LIKE '%' || :query || '%' 
         OR additionalNotes LIKE '%' || :query || '%'
         OR distillery LIKE '%' || :query || '%'
-        ORDER BY createdAt DESC
+        ORDER BY name DESC
     """)
     fun searchNotes(query: String): Flow<List<WhiskeyNoteEntity>>
 } 

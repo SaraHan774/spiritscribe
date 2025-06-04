@@ -1,10 +1,10 @@
 <resources>
-    <string name="app_name">spiritscribe</string>
+    <string name="app_name">SpiritScribe</string>
     <string name="lorem_20_words">Lorem ipsum dolor sit amet, consectetur adipiscing elit.
         Nulla mollis semper luctus. Quisque aliquam arcu at velit laoreet, sagittis tristique.</string>
     <string name="note_formatter_year">ISSUED %s</string>
-    <string name="note_formatter_age">%s YO</string>
-    <string name="note_formatter_abv">ABV %s%%</string>
+    <string name="note_formatter_age">Age: %1$s</string>
+    <string name="note_formatter_abv">ABV: %1$s</string>
 
     <string-array name="whiskey_origin_list">
         <item>Scotland</item>

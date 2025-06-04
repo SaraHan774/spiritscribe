@@ -20,7 +20,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -37,7 +36,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -51,7 +49,7 @@ import coil3.request.ImageRequest
 import coil3.request.placeholder
 import com.august.spiritscribe.R
 import com.august.spiritscribe.domain.model.Flavor
-import com.august.spiritscribe.domain.model.FlavorProfile
+import com.august.spiritscribe.domain.model.FlavorIntensity
 import com.august.spiritscribe.ui.theme.*
 import com.august.spiritscribe.utils.collectAsMutableState
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
@@ -207,8 +205,8 @@ fun NewThreadItem(
     onSeek: (Int) -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
-    var flavorProfiles by remember { 
-        mutableStateOf(Flavor.entries.map { FlavorProfile(it, 0) })
+    var flavorIntensities by remember {
+        mutableStateOf(Flavor.entries.map { FlavorIntensity(it, 0) })
     }
     var isFlavorProfileExpanded by remember { mutableStateOf(false) }
     
@@ -343,9 +341,9 @@ fun NewThreadItem(
                                 ) {
                                     FlavorProfileGraph(
                                         modifier = Modifier.fillMaxSize(),
-                                        profiles = flavorProfiles,
+                                        profiles = flavorIntensities,
                                         onProfileChange = { newProfiles ->
-                                            flavorProfiles = newProfiles
+                                            flavorIntensities = newProfiles
                                         }
                                     )
                                 }
@@ -357,7 +355,7 @@ fun NewThreadItem(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .wrapContentHeight(),
-                                profiles = flavorProfiles
+                                profiles = flavorIntensities
                             )
                         }
                     }
@@ -530,7 +528,7 @@ private fun ActionButton(
 @Composable
 private fun FlavorProfilePreview(
     modifier: Modifier = Modifier,
-    profiles: List<FlavorProfile>
+    profiles: List<FlavorIntensity>
 ) {
     LazyRow(
         modifier = modifier,

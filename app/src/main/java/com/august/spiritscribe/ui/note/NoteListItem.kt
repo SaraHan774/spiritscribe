@@ -67,7 +67,7 @@ fun NoteListItem(
                         modifier = Modifier
                             .sharedElement(
                                 animatedVisibilityScope = animatedContentScope,
-                                state = sharedTransitionScope.rememberSharedContentState(key = "image${uim.id}")
+                                sharedContentState = sharedTransitionScope.rememberSharedContentState(key = "image${uim.id}")
                             )
                             .fillMaxSize(),
                         painter = painterResource(R.drawable.ic_launcher_background),

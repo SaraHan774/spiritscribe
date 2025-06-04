@@ -73,7 +73,7 @@ fun NoteDetailRoute(
                     modifier = Modifier
                         .fillMaxSize()
                         .sharedElement(
-                            state = sharedTransitionScope.rememberSharedContentState(key = "image$id"),
+                            sharedContentState = sharedTransitionScope.rememberSharedContentState(key = "image$id"),
                             animatedVisibilityScope = animatedContentScope,
                         ),
                     contentScale = ContentScale.Crop

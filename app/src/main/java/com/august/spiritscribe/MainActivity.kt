@@ -5,6 +5,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -21,7 +24,9 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.august.spiritscribe.ui.theme.SpiritScribeTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,34 +37,43 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
 }
 
 @Composable
 private fun App() {
-    // https://developer.android.com/develop/ui/compose/navigation#bottom-nav
-    // single top 적용하고, TopLevelRoute 로 목적지 감싸기
     val navHostController = rememberNavController()
+    val navBackStackEntry by navHostController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
+    
+    // Check if bottom navigation should be hidden for current route
+    val shouldShowBottomNav = !hideBottomNavigationRoutes.any { routeClass ->
+        currentDestination?.hasRoute(routeClass) ?: false
+    }
+
     Scaffold(
         bottomBar = {
-            val navBackStackEntry by navHostController.currentBackStackEntryAsState()
-            val currentDestination = navBackStackEntry?.destination
-            NavigationBar {
-                topLevelRoutes.forEach { topLevelRoute ->
-                    NavigationBarItem(
-                        icon = { Icon(topLevelRoute.icon, contentDescription = topLevelRoute.name) },
-                        label = { Text(topLevelRoute.name) },
-                        selected = currentDestination?.hierarchy?.any { it.hasRoute(topLevelRoute.route::class) } ?: false,
-                        onClick = {
-                            navHostController.navigate(topLevelRoute.route) {
-                                popUpTo(navHostController.graph.findStartDestination().id) {
-                                    saveState = true
+            AnimatedVisibility(
+                visible = shouldShowBottomNav,
+                enter = slideInVertically(initialOffsetY = { it }),
+                exit = slideOutVertically(targetOffsetY = { it })
+            ) {
+                NavigationBar {
+                    topLevelRoutes.forEach { topLevelRoute ->
+                        NavigationBarItem(
+                            icon = { Icon(topLevelRoute.icon, contentDescription = topLevelRoute.name) },
+                            label = { Text(topLevelRoute.name) },
+                            selected = currentDestination?.hierarchy?.any { it.hasRoute(topLevelRoute.route::class) } ?: false,
+                            onClick = {
+                                navHostController.navigate(topLevelRoute.route) {
+                                    popUpTo(navHostController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
                                 }
-                                launchSingleTop = true
-                                restoreState = true
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
         }
@@ -67,7 +81,6 @@ private fun App() {
         AppNavigation(modifier = Modifier.padding(innerPadding), navHostController)
     }
 }
-
 
 @Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,

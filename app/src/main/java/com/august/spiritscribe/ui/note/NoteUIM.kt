@@ -9,6 +9,7 @@ data class NoteUIM(
     val age: String,
     val abv: String,
     val description: String,
+    val imageUrl: String? = null
 )
 
 fun List<WhiskeyNote>.toNoteUIMs(): List<NoteUIM> {

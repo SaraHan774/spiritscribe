@@ -17,7 +17,7 @@ data class WhiskeyNote(
     val price: Double?,
     val sampled: Boolean,
     val color: ColorMeter,
-    val flavors: List<FlavorProfile>,
+    val flavors: List<FlavorIntensity>,
     val additionalNotes: String,
     val finalRating: FinalRating,
     val createdAt: Long = System.currentTimeMillis(),
@@ -25,7 +25,7 @@ data class WhiskeyNote(
     val userId: String? = null
 )
 
-data class FlavorProfile(
+data class FlavorIntensity(
     val flavor: Flavor,
     val intensity: Int // Scale from 0 to 5
 )

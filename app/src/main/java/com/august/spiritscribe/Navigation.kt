@@ -25,12 +25,15 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import com.august.spiritscribe.ui.note.NewThreadScreen
 import com.august.spiritscribe.ui.note.NoteDetailRoute
 import com.august.spiritscribe.ui.note.NoteListRoute
-import com.august.spiritscribe.ui.note.NewThreadScreen
 import com.august.spiritscribe.ui.search.SearchRoute
+import com.august.spiritscribe.ui.whiskey.AddWhiskeyScreen
 import kotlinx.serialization.Serializable
 
+@Serializable
+data object AddWhiskey
 
 @Serializable
 data object AddNote
@@ -50,7 +53,6 @@ data object Search
 @Serializable
 data object Profile
 
-
 data class TopLevelRoute<T : Any>(val name: String, val route: T, val icon: ImageVector)
 
 val topLevelRoutes = listOf(
@@ -60,13 +62,12 @@ val topLevelRoutes = listOf(
     TopLevelRoute("Profile", Profile, Icons.Filled.AccountCircle)
 )
 
-
-//https://developer.android.com/guide/navigation/design/encapsulate
-//In summary
-//Encapsulate your navigation code for a related set of screens by placing it in a separate file
-//Expose destinations by creating extension functions on NavGraphBuilder
-//Expose navigation events by creating extension functions on NavController
-//Use internal to keep screens and route types private
+// List of routes where bottom navigation should be hidden
+val hideBottomNavigationRoutes = listOf(
+    AddWhiskey::class,
+    AddNote::class,
+    NoteDetail::class
+)
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -79,8 +80,10 @@ fun AppNavigation(modifier: Modifier = Modifier, navController: NavHostControlle
         ) {
             noteDestination(
                 navigateToNoteDetail = { id: String -> navController.navigateToNoteDetail(id) },
-                sharedTransitionScope = this@SharedTransitionLayout,
-                navigateToAddNote = { navController.navigateToAddNote() }
+                navigateToAddWhiskey = { navController.navigateToAddWhiskey() },
+                navigateToAddNote = { navController.navigateToAddNote() },
+                onNavigateBack = { navController.popBackStack() },
+                sharedTransitionScope = this@SharedTransitionLayout
             )
             feedDestination()
             searchDestination()
@@ -89,7 +92,7 @@ fun AppNavigation(modifier: Modifier = Modifier, navController: NavHostControlle
     }
 }
 
-// NavController 확장함수로 네비 이벤트를 캡슐화
+// NavController extension functions
 fun NavController.navigateToNoteDetail(id: String) {
     navigate(route = NoteDetail(id))
 }
@@ -98,7 +101,11 @@ fun NavController.navigateToAddNote() {
     navigate(route = AddNote)
 }
 
-// NavGraphBuilder 확잠함수로 네비 목적지를 캡슐화
+fun NavController.navigateToAddWhiskey() {
+    navigate(route = AddWhiskey)
+}
+
+// NavGraphBuilder extension functions
 fun NavGraphBuilder.feedDestination() {
     composable<Feed> { FeedRoute() }
 }
@@ -106,28 +113,34 @@ fun NavGraphBuilder.feedDestination() {
 @OptIn(ExperimentalSharedTransitionApi::class)
 fun NavGraphBuilder.noteDestination(
     navigateToNoteDetail: (String) -> Unit,
+    navigateToAddWhiskey: () -> Unit,
     navigateToAddNote: () -> Unit,
+    onNavigateBack: () -> Unit,
     sharedTransitionScope: SharedTransitionScope,
 ) {
     composable<MyNoteList> {
         NoteListRoute(
             navigateToNoteDetail = navigateToNoteDetail,
+            navigateToAddWhiskey = navigateToAddWhiskey,
             sharedTransitionScope = sharedTransitionScope,
             animatedContentScope = this@composable,
         )
     }
     composable<NoteDetail> { navBackStackEntry: NavBackStackEntry ->
-        // Type safe arguments !
-        // TODO :  https://developer.android.com/guide/navigation/design/type-safety
         val detail: NoteDetail = navBackStackEntry.toRoute()
         NoteDetailRoute(
-            detail.id,
+            id = detail.id,
             sharedTransitionScope = sharedTransitionScope,
             animatedContentScope = this@composable,
             onClickAddNote = navigateToAddNote
         )
     }
     composable<AddNote> { AddNoteRoute() }
+    composable<AddWhiskey> {
+        AddWhiskeyScreen(
+            onNavigateBack = onNavigateBack
+        )
+    }
 }
 
 fun NavGraphBuilder.searchDestination() {
@@ -138,9 +151,7 @@ fun NavGraphBuilder.profileDestination() {
     composable<Profile> { ProfileRoute() }
 }
 
-
-//// Routes /////
-
+// Route Composables
 @Composable
 fun FeedRoute() {
     Column(
@@ -154,7 +165,13 @@ fun FeedRoute() {
 
 @Composable
 fun AddNoteRoute() {
-    NewThreadScreen()
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        NewThreadScreen()
+    }
 }
 
 @Composable
