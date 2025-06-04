@@ -31,6 +31,7 @@ import com.august.spiritscribe.ui.note.NoteListRoute
 import com.august.spiritscribe.ui.search.SearchRoute
 import com.august.spiritscribe.ui.whiskey.AddWhiskeyScreen
 import com.august.spiritscribe.ui.whiskey.WhiskeyDetailRoute
+import com.august.spiritscribe.ui.profile.ProfileScreen
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -198,11 +199,8 @@ fun AddNoteRoute() {
 
 @Composable
 fun ProfileRoute(modifier: Modifier = Modifier) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Profile")
-    }
+    ProfileScreen(
+        onEditProfile = { /* TODO: Implement edit profile navigation */ },
+        modifier = modifier
+    )
 }
