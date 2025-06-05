@@ -9,6 +9,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -21,64 +22,42 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.Navigation
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.august.spiritscribe.ui.theme.SpiritScribeTheme
-import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint
+@dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             SpiritScribeTheme {
-                App()
+                MainScreen()
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun App() {
-    val navHostController = rememberNavController()
-    val navBackStackEntry by navHostController.currentBackStackEntryAsState()
-    val currentDestination = navBackStackEntry?.destination
+fun MainScreen() {
+    val navController = rememberNavController()
+    val currentDestination = navController.currentBackStackEntryAsState().value?.destination
     
-    // Check if bottom navigation should be hidden for current route
-    val shouldShowBottomNav = !hideBottomNavigationRoutes.any { routeClass ->
-        currentDestination?.hasRoute(routeClass) ?: false
-    }
-
     Scaffold(
         bottomBar = {
-            AnimatedVisibility(
-                visible = shouldShowBottomNav,
-                enter = slideInVertically(initialOffsetY = { it }),
-                exit = slideOutVertically(targetOffsetY = { it })
-            ) {
-                NavigationBar {
-                    topLevelRoutes.forEach { topLevelRoute ->
-                        NavigationBarItem(
-                            icon = { Icon(topLevelRoute.icon, contentDescription = topLevelRoute.name) },
-                            label = { Text(topLevelRoute.name) },
-                            selected = currentDestination?.hierarchy?.any { it.hasRoute(topLevelRoute.route::class) } ?: false,
-                            onClick = {
-                                navHostController.navigate(topLevelRoute.route) {
-                                    popUpTo(navHostController.graph.findStartDestination().id) {
-                                        saveState = true
-                                    }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            }
-                        )
-                    }
-                }
-            }
+            BottomNavigationBar(
+                navController = navController,
+                currentDestination = currentDestination
+            )
         }
-    ) { innerPadding ->
-        AppNavigation(modifier = Modifier.padding(innerPadding), navHostController)
+    ) { paddingValues ->
+        AppNavigation(
+            navController = navController,
+            modifier = Modifier.padding(paddingValues)
+        )
     }
 }
 
@@ -93,6 +72,6 @@ private fun App() {
 @Composable
 fun AppPreview() {
     SpiritScribeTheme {
-        App()
+        MainScreen()
     }
 }

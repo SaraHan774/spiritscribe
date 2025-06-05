@@ -8,22 +8,37 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.LocalBar
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import androidx.navigation.toRoute
 import com.august.spiritscribe.ui.note.NewThreadScreen
 import com.august.spiritscribe.ui.note.NoteDetailRoute
@@ -34,6 +49,8 @@ import com.august.spiritscribe.ui.whiskey.AddWhiskeyScreen
 import com.august.spiritscribe.ui.whiskey.WhiskeyDetailRoute
 import com.august.spiritscribe.ui.profile.ProfileScreen
 import com.august.spiritscribe.ui.feed.FeedScreen
+import com.august.spiritscribe.ui.flavor.FlavorWheelScreen
+import com.august.spiritscribe.ui.flavor.FlavorWheelViewModel
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -79,6 +96,49 @@ val hideBottomNavigationRoutes = listOf(
     WhiskeyDetail::class
 )
 
+sealed class Screen(val route: String) {
+    open val label: String = ""
+    open val icon: ImageVector = Icons.Default.LocalBar
+    object Feed : Screen("feed") {
+        override val icon: ImageVector = Icons.Filled.Home
+        override val label: String = "Feed"
+    }
+    
+    object Search : Screen("search") {
+        override val icon: ImageVector = Icons.Filled.Search
+        override val label: String = "Search"
+    }
+    
+    object Create : Screen("create") {
+        override val icon: ImageVector = Icons.Filled.Add
+        override val label: String = "Add Note"
+    }
+    
+    object Profile : Screen("profile") {
+        override val icon: ImageVector = Icons.Filled.Person
+        override val label: String = "Profile"
+    }
+    
+    object FlavorWheel : Screen("flavor_wheel") {
+        override val icon: ImageVector = Icons.Filled.LocalBar
+        override val label: String = "Flavor"
+    }
+
+    // 상세 화면들
+    object WhiskeyDetail : Screen("whiskey_detail/{whiskeyId}") {
+        fun createRoute(whiskeyId: String) = "whiskey_detail/$whiskeyId"
+    }
+    
+    object EditNote : Screen("edit_note/{noteId}") {
+        fun createRoute(noteId: String) = "edit_note/$noteId"
+    }
+    
+    object Settings : Screen("settings") {
+        override val icon: ImageVector = Icons.Filled.Settings
+        override val label: String = "Settings"
+    }
+}
+
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun AppNavigation(modifier: Modifier = Modifier, navController: NavHostController) {
@@ -86,19 +146,64 @@ fun AppNavigation(modifier: Modifier = Modifier, navController: NavHostControlle
         NavHost(
             modifier = modifier,
             navController = navController,
-            startDestination = MyNoteList
+            startDestination = Screen.Feed.route
         ) {
-            noteDestination(
-                navigateToNoteDetail = { id: String -> navController.navigateToNoteDetail(id) },
-                navigateToWhiskeyDetail = { id: String -> navController.navigateToWhiskeyDetail(id) },
-                navigateToAddWhiskey = { navController.navigateToAddWhiskey() },
-                navigateToAddNote = { navController.navigateToAddNote() },
-                onNavigateBack = { navController.popBackStack() },
-                sharedTransitionScope = this@SharedTransitionLayout
-            )
-            feedDestination()
-            searchDestination()
-            profileDestination()
+            composable(Screen.Feed.route) {
+                FeedScreen(
+                    onNoteClick = {},
+                    onUserClick = {}
+                )
+            }
+            composable(Screen.Search.route) {
+                SearchScreen(
+                    onWhiskeyClick = {}
+                )
+            }
+            composable(Screen.Create.route) {
+                AddNoteRoute(
+//                    noteId = backStackEntry.arguments?.getString("noteId") ?: "",
+//                    onNavigateBack = { navController.navigateUp() }
+                )
+            }
+            composable(Screen.Profile.route) {
+                ProfileScreen()
+            }
+            composable(Screen.FlavorWheel.route) {
+                val viewModel = hiltViewModel<FlavorWheelViewModel>()
+                val flavorProfile = viewModel.flavorProfile.collectAsState()
+                
+                FlavorWheelScreen(
+                    flavorProfile = flavorProfile.value,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+            composable(
+                route = Screen.WhiskeyDetail.route,
+                arguments = listOf(
+                    navArgument("whiskeyId") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                WhiskeyDetailRoute(
+                    whiskeyId = backStackEntry.arguments?.getString("whiskeyId") ?: "",
+                    onAddNote = {},
+                    // onNavigateBack = { navController.navigateUp() }
+                )
+            }
+            composable(
+                route = Screen.EditNote.route,
+                arguments = listOf(
+                    navArgument("noteId") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                NewThreadScreen(
+                    // onNavigateBack = { navController.navigateUp() }
+                )
+            }
+            composable(Screen.Settings.route) {
+//                SettingsScreen(
+//                    onNavigateBack = { navController.navigateUp() }
+//                )
+            }
         }
     }
 }
@@ -214,4 +319,64 @@ fun ProfileRoute(modifier: Modifier = Modifier) {
         onEditProfile = { /* TODO: Implement edit profile navigation */ },
         modifier = modifier
     )
+}
+
+@Composable
+fun BottomNavigationBar(
+    navController: NavController,
+    currentDestination: NavDestination?,
+    modifier: Modifier = Modifier
+) {
+    NavigationBar(
+        modifier = modifier,
+        containerColor = MaterialTheme.colorScheme.surface,
+    ) {
+        val items = listOf(
+            Screen.Feed,
+            Screen.Search,
+            Screen.Create,
+            Screen.FlavorWheel,
+            Screen.Profile
+        )
+        
+        items.forEach { screen ->
+            val selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true
+            
+            NavigationBarItem(
+                icon = {
+                    Icon(
+                        imageVector = screen.icon,
+                        contentDescription = null,
+                        tint = if (selected) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        }
+                    )
+                },
+                label = {
+                    Text(
+                        text = screen.label,
+                        color = if (selected) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        }
+                    )
+                },
+                selected = selected,
+                onClick = {
+                    if (!selected) {
+                        navController.navigate(screen.route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                }
+            )
+        }
+    }
 }
