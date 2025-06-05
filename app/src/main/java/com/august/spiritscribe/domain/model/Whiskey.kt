@@ -29,14 +29,3 @@ enum class WhiskeyType {
     CANADIAN,
     OTHER
 }
-
-data class FlavorProfile(
-    val id: String = UUID.randomUUID().toString(),
-    val whiskeyId: String,
-    val sweetness: Int, // 1-5
-    val smokiness: Int, // 1-5
-    val spiciness: Int, // 1-5
-    val fruitiness: Int, // 1-5
-    val woodiness: Int, // 1-5
-    val notes: List<String> // e.g. ["vanilla", "caramel", "oak"]
-) 

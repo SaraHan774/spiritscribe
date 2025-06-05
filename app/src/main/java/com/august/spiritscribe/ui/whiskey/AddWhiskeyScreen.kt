@@ -396,7 +396,7 @@ fun AddWhiskeyScreen(
                             trailingIcon = {
                                 Icon(
                                     Icons.Default.Close,
-                                    contentDescription = "Remove",
+                                    contentDescription = "Remove", 
                                     modifier = Modifier.size(16.dp)
                                 )
                             }

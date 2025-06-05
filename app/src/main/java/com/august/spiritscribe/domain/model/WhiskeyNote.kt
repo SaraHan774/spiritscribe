@@ -22,7 +22,8 @@ data class WhiskeyNote(
     val finalRating: FinalRating,
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis(),
-    val userId: String? = null
+    val userId: String? = null,
+    val imageUrl: String? = null,
 )
 
 data class FlavorIntensity(
