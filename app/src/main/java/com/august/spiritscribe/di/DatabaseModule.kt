@@ -24,19 +24,17 @@ object DatabaseModule {
     fun provideDatabase(
         @ApplicationContext context: Context
     ): SpiritScribeDatabase {
-        android.util.Log.d("DatabaseModule", "Creating database instance")
-        return Room.databaseBuilder(
+        val callback = SpiritScribeDatabase.createCallback(context)
+        val database = Room.databaseBuilder(
             context,
             SpiritScribeDatabase::class.java,
-            "spiritscribe.db"
+            "spiritscribe_v3.db"  // 새로운 데이터베이스 파일명으로 확실한 재생성
         )
         .fallbackToDestructiveMigration()
-        .addCallback(SpiritScribeDatabase.createCallback(context))
+        .addCallback(callback)
         .build()
-        .also { 
-            android.util.Log.d("DatabaseModule", "Database instance created")
-            SpiritScribeDatabase.setInstance(it)
-        }
+        SpiritScribeDatabase.setInstance(database)
+        return database
     }
 
     @Provides

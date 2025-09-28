@@ -38,6 +38,7 @@ class WhiskeyNoteRepositoryImpl @Inject constructor(
     }
 
     override fun getNotes(filters: NoteFilters): Flow<List<WhiskeyNote>> {
+        android.util.Log.d("WhiskeyNoteRepository", "getNotes 호출됨. 필터: $filters")
         val flow = when (filters.sortBy) {
             NoteSortOption.CREATED_DESC -> whiskeyNoteDao.getNotesByCreatedDesc(
                 searchQuery = filters.searchQuery,
@@ -94,7 +95,15 @@ class WhiskeyNoteRepositoryImpl @Inject constructor(
                 sampledOnly = filters.sampledOnly
             )
         }
-        return flow.map { entities -> entities.map { it.toDomain() } }
+        return flow.map { entities -> 
+            android.util.Log.d("WhiskeyNoteRepository", "DAO에서 받은 엔티티 수: ${entities.size}")
+            entities.forEach { entity ->
+                android.util.Log.d("WhiskeyNoteRepository", "엔티티: ${entity.name} - ${entity.additionalNotes.take(30)}")
+            }
+            val domainNotes = entities.map { it.toDomain() }
+            android.util.Log.d("WhiskeyNoteRepository", "도메인 객체로 변환 완료: ${domainNotes.size}개")
+            domainNotes
+        }
     }
 
     override fun searchNotes(query: String): Flow<List<WhiskeyNote>> {

@@ -69,7 +69,6 @@ class FeedViewModel @Inject constructor(
                 .map { notes -> notes.map { it.toFeedItem() } }
                 .catch { throwable ->
                     error = "Failed to load feed data: ${throwable.message}"
-                    android.util.Log.e("FeedViewModel", "Error loading feed", throwable)
                 }
                 .collect { feedItems ->
                     _feedItems.value = feedItems
@@ -78,7 +77,6 @@ class FeedViewModel @Inject constructor(
             } catch (e: Exception) {
                 error = "Failed to load feed data: ${e.message}"
                 isLoading = false
-                android.util.Log.e("FeedViewModel", "Error in loadFeedData", e)
             }
         }
     }
@@ -131,7 +129,6 @@ class FeedViewModel @Inject constructor(
                 
             } catch (e: Exception) {
                 error = "Failed to update like: ${e.message}"
-                android.util.Log.e("FeedViewModel", "Error toggling like", e)
             }
         }
     }

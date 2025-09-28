@@ -46,9 +46,6 @@ fun FeedScreen(
         )
 
         when {
-            feedItems.isEmpty() && !viewModel.isLoading -> {
-                EmptyFeedContent()
-            }
             viewModel.isLoading -> {
                 LoadingContent()
             }
@@ -57,6 +54,9 @@ fun FeedScreen(
                     error = viewModel.error!!,
                     onRetry = { viewModel.refresh() }
                 )
+            }
+            feedItems.isEmpty() -> {
+                EmptyFeedContent()
             }
             else -> {
                 LazyColumn(

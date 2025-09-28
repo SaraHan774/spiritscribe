@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
         WhiskeyNoteEntity::class,
         FlavorProfileEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -35,20 +35,11 @@ abstract class SpiritScribeDatabase : RoomDatabase() {
         fun createCallback(context: Context) = object : Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
-                android.util.Log.d("SpiritScribeDatabase", "onCreate called")
                 instance?.let { database ->
-                    android.util.Log.d("SpiritScribeDatabase", "Instance found, launching coroutine")
                     CoroutineScope(Dispatchers.IO).launch {
-                        android.util.Log.d("SpiritScribeDatabase", "Starting database population")
                         prepopulateDatabase(database, context)
-                        android.util.Log.d("SpiritScribeDatabase", "Finished database population")
                     }
-                } ?: android.util.Log.e("SpiritScribeDatabase", "Instance is null in onCreate")
-            }
-
-            override fun onDestructiveMigration(db: SupportSQLiteDatabase) {
-                super.onDestructiveMigration(db)
-                android.util.Log.d("SpiritScribeDatabase", "onDestructiveMigration called")
+                }
             }
         }
 
@@ -56,56 +47,34 @@ abstract class SpiritScribeDatabase : RoomDatabase() {
         private var instance: SpiritScribeDatabase? = null
 
         fun setInstance(database: SpiritScribeDatabase) {
-            android.util.Log.d("SpiritScribeDatabase", "Setting database instance")
             instance = database
         }
 
         private suspend fun prepopulateDatabase(database: SpiritScribeDatabase, context: Context) {
-            android.util.Log.d("SpiritScribeDatabase", "Starting prepopulateDatabase with JSON data")
-            
             try {
                 // JSON 파일에서 시드 데이터 로드
                 val seedData = SeedDataLoader.loadSeedData(context)
-                
+
                 val whiskeyDao = database.whiskeyDao()
                 val whiskeyNoteDao = database.whiskeyNoteDao()
                 val flavorProfileDao = database.flavorProfileDao()
 
                 // 위스키 데이터 삽입
                 seedData.whiskies.forEach { whiskey ->
-                    try {
-                        whiskeyDao.insertWhiskey(whiskey)
-                        android.util.Log.d("SpiritScribeDatabase", "Successfully inserted whiskey: ${whiskey.name}")
-                    } catch (e: Exception) {
-                        android.util.Log.e("SpiritScribeDatabase", "Failed to insert whiskey: ${whiskey.name}", e)
-                    }
+                    whiskeyDao.insertWhiskey(whiskey)
                 }
 
                 // 위스키 노트 데이터 삽입
                 seedData.whiskeyNotes.forEach { note ->
-                    try {
-                        whiskeyNoteDao.insertNote(note)
-                        android.util.Log.d("SpiritScribeDatabase", "Successfully inserted note: ${note.name}")
-                    } catch (e: Exception) {
-                        android.util.Log.e("SpiritScribeDatabase", "Failed to insert note: ${note.name}", e)
-                    }
+                    whiskeyNoteDao.insertNote(note)
                 }
 
                 // 풍미 프로파일 데이터 삽입
                 seedData.flavorProfiles.forEach { profile ->
-                    try {
-                        flavorProfileDao.insertFlavorProfile(profile)
-                        android.util.Log.d("SpiritScribeDatabase", "Successfully inserted flavor profile for note: ${profile.whiskeyId}")
-                    } catch (e: Exception) {
-                        android.util.Log.e("SpiritScribeDatabase", "Failed to insert flavor profile for note: ${profile.whiskeyId}", e)
-                    }
+                    flavorProfileDao.insertFlavorProfile(profile)
                 }
-                
-                android.util.Log.d("SpiritScribeDatabase", "JSON seed data population completed successfully")
-                
             } catch (e: Exception) {
-                android.util.Log.e("SpiritScribeDatabase", "Failed to load JSON seed data, falling back to minimal sample data", e)
-                
+
                 // JSON 로드 실패 시 최소한의 샘플 데이터 삽입
                 insertMinimalSampleData(database)
             }
@@ -116,7 +85,7 @@ abstract class SpiritScribeDatabase : RoomDatabase() {
          */
         private suspend fun insertMinimalSampleData(database: SpiritScribeDatabase) {
             val whiskeyDao = database.whiskeyDao()
-            
+
             val sampleWhiskey = WhiskeyEntity(
                 id = "sample-1",
                 name = "Sample Whiskey",
@@ -133,12 +102,16 @@ abstract class SpiritScribeDatabase : RoomDatabase() {
                 createdAt = java.time.LocalDateTime.now(),
                 updatedAt = java.time.LocalDateTime.now()
             )
-            
+
             try {
                 whiskeyDao.insertWhiskey(sampleWhiskey)
                 android.util.Log.d("SpiritScribeDatabase", "Inserted minimal sample data")
             } catch (e: Exception) {
-                android.util.Log.e("SpiritScribeDatabase", "Failed to insert even minimal sample data", e)
+                android.util.Log.e(
+                    "SpiritScribeDatabase",
+                    "Failed to insert even minimal sample data",
+                    e
+                )
             }
         }
     }

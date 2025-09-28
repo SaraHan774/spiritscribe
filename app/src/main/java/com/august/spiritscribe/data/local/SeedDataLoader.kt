@@ -23,8 +23,13 @@ object SeedDataLoader {
      * assets/whiskey_seed.json 파일을 읽고 파싱하여 엔티티 리스트를 반환
      */
     suspend fun loadSeedData(context: Context): SeedData {
+        android.util.Log.d("SeedDataLoader", "📂 assets/whiskey_seed.json 파일 열기 시도...")
         val jsonString = context.assets.open("whiskey_seed.json").bufferedReader().use { it.readText() }
+        android.util.Log.d("SeedDataLoader", "✅ JSON 파일 읽기 완료. 크기: ${jsonString.length} 문자")
+        
+        android.util.Log.d("SeedDataLoader", "🔄 JSON 파싱 시작...")
         val seedDataJson = json.decodeFromString<SeedDataJson>(jsonString)
+        android.util.Log.d("SeedDataLoader", "✅ JSON 파싱 완료")
         
         return SeedData(
             whiskies = seedDataJson.whiskeys.map { it.toEntity() },
