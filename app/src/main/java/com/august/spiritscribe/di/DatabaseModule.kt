@@ -6,6 +6,8 @@ import com.august.spiritscribe.data.local.SpiritScribeDatabase
 import com.august.spiritscribe.data.local.dao.FlavorProfileDao
 import com.august.spiritscribe.data.local.dao.WhiskeyDao
 import com.august.spiritscribe.data.local.dao.WhiskeyNoteDao
+import com.august.spiritscribe.data.repository.WhiskeyNoteRepositoryImpl
+import com.august.spiritscribe.domain.repository.WhiskeyNoteRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -53,5 +55,11 @@ object DatabaseModule {
     @Singleton
     fun provideFlavorProfileDao(database: SpiritScribeDatabase): FlavorProfileDao {
         return database.flavorProfileDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideWhiskeyNoteRepository(whiskeyNoteDao: WhiskeyNoteDao): WhiskeyNoteRepository {
+        return WhiskeyNoteRepositoryImpl(whiskeyNoteDao)
     }
 } 

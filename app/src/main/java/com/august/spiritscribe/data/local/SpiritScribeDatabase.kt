@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
         WhiskeyNoteEntity::class,
         FlavorProfileEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

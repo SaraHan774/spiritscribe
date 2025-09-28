@@ -27,7 +27,9 @@ data class WhiskeyNoteEntity(
     val taste: Int?,
     val finish: Int?,
     val overall: Int?,
-    val imageUrl: String?
+    val imageUrl: String?,
+    val createdAt: Long = System.currentTimeMillis(),
+    val updatedAt: Long = System.currentTimeMillis()
 ) {
     fun toDomain(): WhiskeyNote = WhiskeyNote(
         id = id,
@@ -53,7 +55,9 @@ data class WhiskeyNoteEntity(
             finish = finish ?: 0,
             overall = overall ?: 0
         ),
-        imageUrl = imageUrl
+        imageUrl = imageUrl,
+        createdAt = createdAt,
+        updatedAt = updatedAt
     )
 
     companion object {
@@ -76,7 +80,9 @@ data class WhiskeyNoteEntity(
             taste = note.finalRating.taste,
             finish = note.finalRating.finish,
             overall = note.finalRating.overall,
-            imageUrl = note.imageUrl
+            imageUrl = note.imageUrl,
+            createdAt = note.createdAt,
+            updatedAt = note.updatedAt
         )
     }
 }

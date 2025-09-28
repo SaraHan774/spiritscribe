@@ -16,7 +16,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.compose.runtime.collectAsState
 import coil3.compose.AsyncImage
 import java.text.SimpleDateFormat
 import java.util.*
@@ -29,7 +29,7 @@ fun FeedScreen(
     modifier: Modifier = Modifier,
     viewModel: FeedViewModel = hiltViewModel()
 ) {
-    val feedItems = viewModel.feedItems.collectAsLazyPagingItems()
+    val feedItems by viewModel.feedItems.collectAsState()
 
     Column(
         modifier = modifier
@@ -46,7 +46,7 @@ fun FeedScreen(
         )
 
         when {
-            feedItems.itemCount == 0 && !viewModel.isLoading -> {
+            feedItems.isEmpty() && !viewModel.isLoading -> {
                 EmptyFeedContent()
             }
             viewModel.isLoading -> {
@@ -63,17 +63,15 @@ fun FeedScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(vertical = 8.dp)
                 ) {
-                    items(feedItems.itemCount) { index ->
+                    items(feedItems.size) { index ->
                         val item = feedItems[index]
-                        if (item != null) {
-                            FeedItem(
-                                item = item,
-                                onNoteClick = onNoteClick,
-                                onUserClick = onUserClick,
-                                onLikeClick = { viewModel.toggleLike(item.id) },
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                            )
-                        }
+                        FeedItem(
+                            item = item,
+                            onNoteClick = onNoteClick,
+                            onUserClick = onUserClick,
+                            onLikeClick = { viewModel.toggleLike(item.id) },
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
                     }
                 }
             }
@@ -135,7 +133,13 @@ private fun FeedItem(
                 style = MaterialTheme.typography.titleLarge
             )
             
-            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = item.distillery,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            
+            Spacer(modifier = Modifier.height(8.dp))
             
             Text(
                 text = item.notes,

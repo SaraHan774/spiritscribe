@@ -117,27 +117,36 @@ object SeedDataLoader {
         val overall: Int?,
         val imageUrl: String?
     ) {
-        fun toEntity(): WhiskeyNoteEntity = WhiskeyNoteEntity(
-            id = id,
-            name = name,
-            distillery = distillery,
-            origin = origin,
-            type = type,
-            age = age,
-            year = year,
-            abv = abv,
-            price = price,
-            sampled = sampled == 1, // 1이면 true, 0이면 false
-            colorHue = colorHue,
-            colorIntensity = colorIntensity,
-            additionalNotes = additionalNotes,
-            appearance = appearance,
-            nose = nose,
-            taste = taste,
-            finish = finish,
-            overall = overall,
-            imageUrl = imageUrl
-        )
+        fun toEntity(): WhiskeyNoteEntity {
+            // 각 노트에 대해 유니크한 타임스탬프 생성 (해시 기반으로 일관성 보장)
+            val baseTime = System.currentTimeMillis() - (1000L * 60 * 60 * 24 * 30) // 30일 전부터 시작
+            val noteHashCode = id.hashCode().toLong()
+            val createdTime = baseTime + (noteHashCode % (1000L * 60 * 60 * 24 * 25)) // 25일 범위에서 분산
+            
+            return WhiskeyNoteEntity(
+                id = id,
+                name = name,
+                distillery = distillery,
+                origin = origin,
+                type = type,
+                age = age,
+                year = year,
+                abv = abv,
+                price = price,
+                sampled = sampled == 1, // 1이면 true, 0이면 false
+                colorHue = colorHue,
+                colorIntensity = colorIntensity,
+                additionalNotes = additionalNotes,
+                appearance = appearance,
+                nose = nose,
+                taste = taste,
+                finish = finish,
+                overall = overall,
+                imageUrl = imageUrl,
+                createdAt = createdTime,
+                updatedAt = createdTime + (1000L * 60 * 60) // 생성 후 1시간 뒤에 업데이트됐다고 가정
+            )
+        }
     }
 
     @Serializable
