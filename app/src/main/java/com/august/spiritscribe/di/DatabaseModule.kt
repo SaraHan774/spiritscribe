@@ -29,7 +29,7 @@ object DatabaseModule {
             "spiritscribe.db"
         )
         .fallbackToDestructiveMigration()
-        .addCallback(SpiritScribeDatabase.callback)
+        .addCallback(SpiritScribeDatabase.createCallback(context))
         .build()
         .also { 
             android.util.Log.d("DatabaseModule", "Database instance created")
