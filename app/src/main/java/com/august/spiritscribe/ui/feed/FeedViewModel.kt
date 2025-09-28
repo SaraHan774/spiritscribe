@@ -85,7 +85,8 @@ private class MockFeedPagingSource : androidx.paging.PagingSource<Int, FeedItem>
             val nextKey = params.key ?: 0
             val items = List(params.loadSize) { index ->
                 FeedItem(
-                    id = (nextKey + index).toString(),
+                    // FakeDataSource note ids are "1","2","3"; map feed ids to these to support detail screen
+                    id = listOf("1", "2", "3")[(nextKey + index) % 3],
                     userId = "user${(nextKey + index) % 5}",
                     userName = "Whiskey Lover ${(nextKey + index) % 5}",
                     userAvatarUrl = null,

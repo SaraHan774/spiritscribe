@@ -129,6 +129,10 @@ sealed class Screen(val route: String) {
         fun createRoute(whiskeyId: String) = "whiskey_detail/$whiskeyId"
     }
     
+    object NoteDetail : Screen("note_detail/{noteId}") {
+        fun createRoute(noteId: String) = "note_detail/$noteId"
+    }
+    
     object EditNote : Screen("edit_note/{noteId}") {
         fun createRoute(noteId: String) = "edit_note/$noteId"
     }
@@ -150,7 +154,9 @@ fun AppNavigation(modifier: Modifier = Modifier, navController: NavHostControlle
         ) {
             composable(Screen.Feed.route) {
                 FeedScreen(
-                    onNoteClick = {},
+                    onNoteClick = { id ->
+                        navController.navigate(Screen.NoteDetail.createRoute(id))
+                    },
                     onUserClick = {}
                 )
             }
@@ -187,6 +193,20 @@ fun AppNavigation(modifier: Modifier = Modifier, navController: NavHostControlle
                     whiskeyId = backStackEntry.arguments?.getString("whiskeyId") ?: "",
                     onAddNote = {},
                     // onNavigateBack = { navController.navigateUp() }
+                )
+            }
+
+            composable(
+                route = Screen.NoteDetail.route,
+                arguments = listOf(
+                    navArgument("noteId") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                NoteDetailRoute(
+                    id = backStackEntry.arguments?.getString("noteId") ?: "",
+                    sharedTransitionScope = this@SharedTransitionLayout,
+                    animatedContentScope = this@composable,
+                    onClickAddNote = {}
                 )
             }
             composable(
