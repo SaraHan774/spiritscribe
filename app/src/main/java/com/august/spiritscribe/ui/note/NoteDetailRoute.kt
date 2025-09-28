@@ -25,6 +25,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -32,14 +33,15 @@ import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.august.spiritscribe.R
-import com.august.spiritscribe.data.FakeDataSource
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -48,10 +50,79 @@ fun NoteDetailRoute(
     sharedTransitionScope: SharedTransitionScope,
     animatedContentScope: AnimatedContentScope,
     onClickAddNote: () -> Unit,
+    viewModel: NoteDetailViewModel = hiltViewModel()
 ) {
     val scrollState = rememberScrollState()
-    // FIXME : viewModel
-    val note = requireNotNull(FakeDataSource.getNoteUIM().find { it.id == id })
+    
+    // 노트 데이터 로드
+    LaunchedEffect(id) {
+        viewModel.loadNote(id)
+    }
+
+    when {
+        viewModel.isLoading -> {
+            LoadingContent()
+        }
+        viewModel.error != null -> {
+            ErrorContent(error = viewModel.error!!)
+        }
+        viewModel.note != null -> {
+            NoteDetailContent(
+                note = viewModel.note!!,
+                id = id,
+                scrollState = scrollState,
+                sharedTransitionScope = sharedTransitionScope,
+                animatedContentScope = animatedContentScope,
+                onClickAddNote = onClickAddNote
+            )
+        }
+    }
+}
+
+@Composable
+private fun LoadingContent() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator()
+    }
+}
+
+@Composable
+private fun ErrorContent(error: String) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = "오류가 발생했습니다",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.error
+            )
+            Text(
+                text = error,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalSharedTransitionApi::class)
+@Composable
+private fun NoteDetailContent(
+    note: com.august.spiritscribe.domain.model.WhiskeyNote,
+    id: String,
+    scrollState: androidx.compose.foundation.ScrollState,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedContentScope: AnimatedContentScope,
+    onClickAddNote: () -> Unit
+) {
 
     with(sharedTransitionScope) {
         Column(
@@ -90,7 +161,7 @@ fun NoteDetailRoute(
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Text(
-                            text = "20", // note.rating
+                            text = "${note.finalRating.overall}",
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
@@ -129,22 +200,58 @@ fun NoteDetailRoute(
                             horizontalArrangement = Arrangement.spacedBy(16.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            if (note.year.isNotEmpty()) {
-                                Chip(
-                                    label = { Text("Year: ${note.year}") },
+                            note.year?.let { year ->
+                                Surface(
+                                    shape = RoundedCornerShape(16.dp),
+                                    color = MaterialTheme.colorScheme.secondaryContainer,
                                     modifier = Modifier.height(32.dp)
-                                )
+                                ) {
+                                    Box(
+                                        contentAlignment = Alignment.Center,
+                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                                    ) {
+                                        Text(
+                                            text = "Year: $year",
+                                            style = MaterialTheme.typography.labelMedium,
+                                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                                        )
+                                    }
+                                }
                             }
-                            if (note.age.isNotEmpty()) {
-                                Chip(
-                                    label = { Text("Age: ${note.age}") },
+                            note.age?.let { age ->
+                                Surface(
+                                    shape = RoundedCornerShape(16.dp),
+                                    color = MaterialTheme.colorScheme.secondaryContainer,
                                     modifier = Modifier.height(32.dp)
-                                )
+                                ) {
+                                    Box(
+                                        contentAlignment = Alignment.Center,
+                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                                    ) {
+                                        Text(
+                                            text = "Age: ${age}년",
+                                            style = MaterialTheme.typography.labelMedium,
+                                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                                        )
+                                    }
+                                }
                             }
-                            Chip(
-                                label = { Text("ABV: ${note.abv}") },
+                            Surface(
+                                shape = RoundedCornerShape(16.dp),
+                                color = MaterialTheme.colorScheme.secondaryContainer,
                                 modifier = Modifier.height(32.dp)
-                            )
+                            ) {
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                                ) {
+                                    Text(
+                                        text = "ABV: ${note.abv}%",
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                                    )
+                                }
+                            }
                         }
                     }
 
@@ -161,7 +268,7 @@ fun NoteDetailRoute(
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            text = note.description,
+                            text = note.additionalNotes,
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
