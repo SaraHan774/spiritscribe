@@ -190,8 +190,10 @@ fun AppNavigation(modifier: Modifier = Modifier, navController: NavHostControlle
             ) { backStackEntry ->
                 WhiskeyDetailRoute(
                     whiskeyId = backStackEntry.arguments?.getString("whiskeyId") ?: "",
-                    onAddNote = {},
-                    // onNavigateBack = { navController.navigateUp() }
+                    onAddNote = {
+                        // TODO: Navigate to add note screen for this whiskey
+                    },
+                    onNavigateBack = { navController.navigateUp() }
                 )
             }
 
@@ -285,6 +287,7 @@ fun NavGraphBuilder.noteDestination(
         WhiskeyDetailRoute(
             whiskeyId = detail.id,
             onAddNote = navigateToAddNote,
+            onNavigateBack = onNavigateBack,
             modifier = Modifier.fillMaxSize()
         )
     }

@@ -44,19 +44,39 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
-    val currentDestination = navController.currentBackStackEntryAsState().value?.destination
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
+    
+    // Check if current route should hide bottom navigation
+    val shouldHideBottomNav = currentDestination?.let { destination ->
+        hideBottomNavigationRoutes.any { routeClass ->
+            when (routeClass) {
+                WhiskeyDetail::class -> destination.route?.contains("whiskey_detail") == true
+                NoteDetail::class -> destination.route?.contains("note_detail") == true
+                AddWhiskey::class -> destination.hasRoute<AddWhiskey>()
+                AddNote::class -> destination.hasRoute<AddNote>()
+                else -> false
+            }
+        }
+    } ?: false
     
     Scaffold(
         bottomBar = {
-            BottomNavigationBar(
-                navController = navController,
-                currentDestination = currentDestination
-            )
+            AnimatedVisibility(
+                visible = !shouldHideBottomNav,
+                enter = slideInVertically(initialOffsetY = { it }),
+                exit = slideOutVertically(targetOffsetY = { it })
+            ) {
+                BottomNavigationBar(
+                    navController = navController,
+                    currentDestination = currentDestination
+                )
+            }
         }
     ) { paddingValues ->
         AppNavigation(
             navController = navController,
-            modifier = Modifier.padding(paddingValues)
+            modifier = if (shouldHideBottomNav) Modifier else Modifier.padding(paddingValues)
         )
     }
 }
