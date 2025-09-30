@@ -154,10 +154,9 @@ fun AppNavigation(modifier: Modifier = Modifier, navController: NavHostControlle
         ) {
             composable(Screen.Feed.route) {
                 FeedScreen(
-                    onNoteClick = { id ->
-                        navController.navigate(Screen.NoteDetail.createRoute(id))
-                    },
-                    onUserClick = {}
+                    onWhiskeyClick = { id ->
+                        navController.navigate(Screen.WhiskeyDetail.createRoute(id))
+                    }
                 )
             }
             composable(Screen.Search.route) {
@@ -249,8 +248,7 @@ fun NavController.navigateToAddWhiskey() {
 fun NavGraphBuilder.feedDestination() {
     composable<Feed> {
         FeedScreen(
-            onNoteClick = { id -> /* TODO: Navigate to note detail */ },
-            onUserClick = { userId -> /* TODO: Navigate to user profile */ }
+            onWhiskeyClick = { id -> /* TODO: Navigate to whiskey detail */ }
         )
     }
 }

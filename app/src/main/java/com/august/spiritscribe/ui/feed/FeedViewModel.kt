@@ -5,37 +5,39 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.august.spiritscribe.domain.model.WhiskeyNote
-import com.august.spiritscribe.domain.repository.NoteFilters
-import com.august.spiritscribe.domain.repository.NoteSortOption
+import com.august.spiritscribe.domain.model.Whiskey
+import com.august.spiritscribe.domain.repository.WhiskeyRepository
 import com.august.spiritscribe.domain.repository.WhiskeyNoteRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class FeedItem(
+data class WhiskeyFeedItem(
     val id: String,
-    val userId: String,
-    val userName: String,
-    val userAvatarUrl: String?,
-    val whiskeyName: String,
+    val name: String,
     val distillery: String,
-    val notes: String,
-    val rating: Int,
+    val type: String,
+    val age: Int?,
+    val year: Int?,
+    val abv: Double,
+    val price: Double?,
+    val region: String?,
+    val description: String,
+    val rating: Int?,
+    val imageUris: List<String>,
     val timestamp: Long,
-    val likesCount: Int,
-    val commentsCount: Int,
-    val isLiked: Boolean,
-    val imageUrl: String?
+    val noteCount: Int // 이 위스키에 대한 노트 개수
 )
 
 @HiltViewModel
 class FeedViewModel @Inject constructor(
+    private val whiskeyRepository: WhiskeyRepository,
     private val whiskeyNoteRepository: WhiskeyNoteRepository
 ) : ViewModel() {
 
@@ -46,11 +48,8 @@ class FeedViewModel @Inject constructor(
         private set
 
     // 피드 아이템들을 Flow로 관리
-    private val _feedItems = MutableStateFlow<List<FeedItem>>(emptyList())
-    val feedItems: StateFlow<List<FeedItem>> = _feedItems.asStateFlow()
-
-    // 좋아요 상태 관리 (임시로 메모리에서 관리)
-    private val likedNotes = mutableSetOf<String>()
+    private val _feedItems = MutableStateFlow<List<WhiskeyFeedItem>>(emptyList())
+    val feedItems: StateFlow<List<WhiskeyFeedItem>> = _feedItems.asStateFlow()
 
     init {
         loadFeedData()
@@ -62,11 +61,21 @@ class FeedViewModel @Inject constructor(
                 isLoading = true
                 error = null
                 
-                // 위스키 노트를 최신순으로 가져와서 피드 아이템으로 변환
-                whiskeyNoteRepository.getNotes(
-                    NoteFilters(sortBy = NoteSortOption.CREATED_DESC)
-                )
-                .map { notes -> notes.map { it.toFeedItem() } }
+                // 모든 위스키를 가져와서 각각의 노트 개수와 함께 피드 아이템으로 변환
+                whiskeyRepository.getAllWhiskies()
+                .map { whiskies -> 
+                    // 각 위스키에 대해 노트 개수를 계산
+                    whiskies.map { whiskey ->
+                        val noteCount = try {
+                            whiskeyRepository.getNotesForWhiskey(whiskey.name, whiskey.distillery)
+                                .first()
+                                .size
+                        } catch (e: Exception) {
+                            0 // 노트 조회 실패 시 0으로 설정
+                        }
+                        whiskey.toFeedItem(noteCount)
+                    }
+                }
                 .catch { throwable ->
                     error = "Failed to load feed data: ${throwable.message}"
                 }
@@ -82,54 +91,26 @@ class FeedViewModel @Inject constructor(
     }
 
     /**
-     * WhiskeyNote를 FeedItem으로 변환하는 확장 함수
+     * Whiskey를 WhiskeyFeedItem으로 변환하는 확장 함수
      */
-    private fun WhiskeyNote.toFeedItem(): FeedItem = FeedItem(
+    private fun Whiskey.toFeedItem(noteCount: Int): WhiskeyFeedItem = WhiskeyFeedItem(
         id = this.id,
-        userId = this.userId ?: "anonymous",
-        userName = "Whiskey Enthusiast", // 실제 사용자 시스템이 있을 때 변경
-        userAvatarUrl = null, // 실제 사용자 시스템이 있을 때 변경
-        whiskeyName = this.name,
+        name = this.name,
         distillery = this.distillery,
-        notes = this.additionalNotes,
-        rating = (this.finalRating.overall / 20).coerceIn(1, 5), // 100점 기준을 5점 기준으로 변환
-        timestamp = this.createdAt,
-        likesCount = (0..50).random(), // 임시 랜덤 값
-        commentsCount = (0..20).random(), // 임시 랜덤 값
-        isLiked = likedNotes.contains(this.id),
-        imageUrl = this.imageUrl
+        type = this.type.name,
+        age = this.age,
+        year = this.year,
+        abv = this.abv,
+        price = this.price,
+        region = this.region,
+        description = this.description,
+        rating = this.rating,
+        imageUris = this.imageUris,
+        timestamp = java.time.ZoneOffset.UTC.let { this.createdAt.toEpochSecond(it) * 1000 },
+        noteCount = noteCount // 실제 노트 개수 사용
     )
 
     fun refresh() {
         loadFeedData()
-    }
-
-    fun toggleLike(noteId: String) {
-        viewModelScope.launch {
-            try {
-                if (likedNotes.contains(noteId)) {
-                    likedNotes.remove(noteId)
-                } else {
-                    likedNotes.add(noteId)
-                }
-                
-                // 현재 피드 아이템들을 업데이트하여 좋아요 상태 반영
-                val currentItems = _feedItems.value
-                val updatedItems = currentItems.map { item ->
-                    if (item.id == noteId) {
-                        item.copy(
-                            isLiked = likedNotes.contains(noteId),
-                            likesCount = if (likedNotes.contains(noteId)) item.likesCount + 1 else item.likesCount - 1
-                        )
-                    } else {
-                        item
-                    }
-                }
-                _feedItems.value = updatedItems
-                
-            } catch (e: Exception) {
-                error = "Failed to update like: ${e.message}"
-            }
-        }
     }
 } 

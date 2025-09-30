@@ -60,4 +60,13 @@ object DatabaseModule {
     fun provideWhiskeyNoteRepository(whiskeyNoteDao: WhiskeyNoteDao): WhiskeyNoteRepository {
         return WhiskeyNoteRepositoryImpl(whiskeyNoteDao)
     }
+    
+    @Provides
+    @Singleton
+    fun provideWhiskeyRepository(
+        whiskeyDao: WhiskeyDao, 
+        whiskeyNoteDao: WhiskeyNoteDao
+    ): com.august.spiritscribe.domain.repository.WhiskeyRepository {
+        return com.august.spiritscribe.data.repository.WhiskeyRepositoryImpl(whiskeyDao, whiskeyNoteDao)
+    }
 } 

@@ -24,8 +24,7 @@ import java.util.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FeedScreen(
-    onNoteClick: (String) -> Unit,
-    onUserClick: (String) -> Unit,
+    onWhiskeyClick: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: FeedViewModel = hiltViewModel()
 ) {
@@ -38,7 +37,7 @@ fun FeedScreen(
     ) {
         // Top App Bar
         TopAppBar(
-            title = { Text("Whiskey Feed") },
+            title = { Text("Whiskey Collection") },
             colors = TopAppBarDefaults.topAppBarColors(
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                 titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -65,11 +64,9 @@ fun FeedScreen(
                 ) {
                     items(feedItems.size) { index ->
                         val item = feedItems[index]
-                        FeedItem(
+                        WhiskeyFeedItem(
                             item = item,
-                            onNoteClick = onNoteClick,
-                            onUserClick = onUserClick,
-                            onLikeClick = { viewModel.toggleLike(item.id) },
+                            onWhiskeyClick = onWhiskeyClick,
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                         )
                     }
@@ -80,122 +77,144 @@ fun FeedScreen(
 }
 
 @Composable
-private fun FeedItem(
-    item: FeedItem,
-    onNoteClick: (String) -> Unit,
-    onUserClick: (String) -> Unit,
-    onLikeClick: () -> Unit,
+private fun WhiskeyFeedItem(
+    item: WhiskeyFeedItem,
+    onWhiskeyClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .clickable { onNoteClick(item.id) },
+            .clickable { onWhiskeyClick(item.id) },
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            // User info and timestamp
+            // Whiskey basic info
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.Top
             ) {
-                Row(
-                    modifier = Modifier.clickable { onUserClick(item.userId) },
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    AsyncImage(
-                        model = item.userAvatarUrl,
-                        contentDescription = "User avatar",
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(CircleShape),
-                        contentScale = ContentScale.Crop
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    // Whiskey name
                     Text(
-                        text = item.userName,
-                        style = MaterialTheme.typography.titleMedium
+                        text = item.name,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                    )
+                    
+                    // Distillery
+                    Text(
+                        text = item.distillery,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    
+                    // Type and region
+                    Text(
+                        text = "${item.type}${item.region?.let { " • $it" } ?: ""}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                Text(
-                    text = formatTimestamp(item.timestamp),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                
+                // Rating (if available)
+                item.rating?.let { rating ->
+                    Surface(
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.primaryContainer
+                    ) {
+                        Text(
+                            text = "$rating",
+                            modifier = Modifier.padding(8.dp),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
+                }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Whiskey info
-            Text(
-                text = item.whiskeyName,
-                style = MaterialTheme.typography.titleLarge
-            )
+            // Whiskey details row (ABV, Age, etc.)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // ABV
+                Surface(
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                    color = MaterialTheme.colorScheme.secondaryContainer
+                ) {
+                    Text(
+                        text = "${item.abv}% ABV",
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                }
+                
+                // Age (if available)
+                item.age?.let { age ->
+                    Surface(
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.secondaryContainer
+                    ) {
+                        Text(
+                            text = "${age}년",
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                    }
+                }
+                
+                // Year (if available)
+                item.year?.let { year ->
+                    Surface(
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.secondaryContainer
+                    ) {
+                        Text(
+                            text = "$year",
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                    }
+                }
+            }
             
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            // Description
             Text(
-                text = item.distillery,
+                text = item.description,
                 style = MaterialTheme.typography.bodyMedium,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             
             Spacer(modifier = Modifier.height(8.dp))
             
-            Text(
-                text = item.notes,
-                style = MaterialTheme.typography.bodyMedium,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis
-            )
-
-            // Rating and stats
+            // Bottom info
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    repeat(5) { index ->
-                        Icon(
-                            imageVector = if (index < item.rating) Icons.Filled.Star else Icons.Filled.StarBorder,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                }
+                // Price (if available)
+                item.price?.let { price ->
+                    Text(
+                        text = "$${String.format("%.0f", price)}",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Medium
+                    )
+                } ?: Spacer(modifier = Modifier.width(1.dp))
                 
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconButton(onClick = onLikeClick) {
-                        Icon(
-                            imageVector = if (item.isLiked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                            contentDescription = if (item.isLiked) "Unlike" else "Like",
-                            tint = if (item.isLiked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                    IconButton(onClick = { onNoteClick(item.id) }) {
-                        Icon(
-                            imageVector = Icons.Default.Comment,
-                            contentDescription = "View comments"
-                        )
-                    }
-                }
-            }
-
-            // Stats
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 4.dp),
-                horizontalArrangement = Arrangement.End
-            ) {
+                // Note count indicator
                 Text(
-                    text = "${item.likesCount} likes • ${item.commentsCount} comments",
+                    text = "${item.noteCount} 노트",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -221,11 +240,11 @@ private fun EmptyFeedContent() {
                 tint = MaterialTheme.colorScheme.primary
             )
             Text(
-                text = "No tasting notes yet",
+                text = "위스키가 없습니다",
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
-                text = "Be the first to share your whiskey experience!",
+                text = "위스키 데이터가 로드되지 않았습니다",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

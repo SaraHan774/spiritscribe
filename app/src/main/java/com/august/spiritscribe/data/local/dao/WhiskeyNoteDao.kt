@@ -131,4 +131,17 @@ interface WhiskeyNoteDao {
         ORDER BY name DESC
     """)
     fun searchNotes(query: String): Flow<List<WhiskeyNoteEntity>>
+    
+    @Query("""
+        SELECT * FROM whiskey_notes 
+        WHERE name = :whiskeyName AND distillery = :distillery
+        ORDER BY createdAt DESC
+    """)
+    fun getNotesByWhiskeyNameAndDistillery(whiskeyName: String, distillery: String): Flow<List<WhiskeyNoteEntity>>
+    
+    @Query("SELECT COUNT(*) FROM whiskey_notes")
+    suspend fun getTotalNoteCount(): Int
+    
+    @Query("SELECT * FROM whiskey_notes LIMIT 5")
+    suspend fun getFirstFiveNotes(): List<WhiskeyNoteEntity>
 } 
