@@ -38,21 +38,7 @@ fun FeedScreen(
 ) {
     val feedItems by viewModel.feedItems.collectAsState()
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        // Top App Bar
-        TopAppBar(
-            title = { Text("Whiskey Collection") },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-        )
-
-        when {
+    when {
             viewModel.isLoading -> {
                 LoadingContent()
             }
@@ -81,7 +67,6 @@ fun FeedScreen(
                 }
             }
         }
-    }
 }
 
 @Composable
