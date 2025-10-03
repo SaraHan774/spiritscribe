@@ -199,7 +199,7 @@ fun WhiskeyDetailRoute(
                         isLast = index == notes.lastIndex,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 0.dp, vertical = 0.dp) // No padding for Twitter-style
+                            .padding(horizontal = 16.dp, vertical = 8.dp) // Natural spacing between items
                             .animateItem(
                                 placementSpec = spring(
                                     dampingRatio = Spring.DampingRatioMediumBouncy,
@@ -520,51 +520,22 @@ private fun WhiskeyNoteTimelineItem(
             Column(
                 modifier = Modifier.padding(16.dp)
             ) {
-                // Twitter-style header with user info and timestamp
+                // Clean header with date and rating
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Top
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        // Avatar placeholder (could be user avatar in real app)
-                        Surface(
-                            shape = CircleShape,
-                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                            modifier = Modifier.size(32.dp)
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Text(
-                                    text = "👤",
-                                    style = MaterialTheme.typography.labelLarge
-                                )
-                            }
-                        }
-                        
-                        Spacer(modifier = Modifier.width(12.dp))
-                        
-                        Column {
-                            Text(
-                                text = "테이스터",
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface
+                    Text(
+                        text = DateTimeFormatter.ofPattern("M월 d일").format(
+                            LocalDateTime.ofInstant(
+                                Instant.ofEpochMilli(note.createdAt),
+                                ZoneId.systemDefault()
                             )
-                            Text(
-                                text = DateTimeFormatter.ofPattern("M월 d일").format(
-                                    LocalDateTime.ofInstant(
-                                        Instant.ofEpochMilli(note.createdAt),
-                                        ZoneId.systemDefault()
-                                    )
-                                ),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
+                        ),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                     
                     // Rating badge
                     Surface(
@@ -1130,7 +1101,7 @@ private fun WhiskeyDetailRouteContent(
                         isLast = index == notes.lastIndex,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 0.dp, vertical = 0.dp)
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
                             .animateItem(
                                 placementSpec = spring(
                                     dampingRatio = Spring.DampingRatioMediumBouncy,
