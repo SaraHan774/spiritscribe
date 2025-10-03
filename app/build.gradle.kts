@@ -10,6 +10,23 @@ plugins {
     alias(libs.plugins.google.gms.google.services)
 }
 
+// Git 커밋 해시를 가져오는 함수
+fun getGitHash(): String {
+    return try {
+        val process = ProcessBuilder("git", "rev-parse", "--short", "HEAD")
+            .directory(project.rootDir)
+            .start()
+        process.inputStream.bufferedReader().readText().trim()
+    } catch (e: Exception) {
+        "unknown"
+    }
+}
+
+// 빌드 시간을 가져오는 함수 (간단한 형식)
+fun getBuildTime(): String {
+    return System.currentTimeMillis().toString()
+}
+
 android {
     namespace = "com.august.spiritscribe"
     compileSdk = 35
@@ -19,7 +36,9 @@ android {
         minSdk = 28
         targetSdk = 35
         versionCode = 1
-        versionName = "1.0"
+        
+        // Git 해시를 포함한 버전명 설정
+        versionName = "0.0.1_${getGitHash()}"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -28,10 +47,13 @@ android {
         debug {
             // App Distribution을 위한 디버그 빌드 설정
             isDebuggable = true
+            // 디버그 빌드는 Git 해시 + -debug 접미사
             versionNameSuffix = "-debug"
         }
         release {
             isMinifyEnabled = false
+            // 릴리즈 빌드는 Git 해시만 사용
+            versionNameSuffix = ""
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -104,8 +126,17 @@ firebaseAppDistribution {
     // 테스터 그룹 설정 (이메일 주소들을 콤마로 구분)
     groups = "testers"
     
-    // 릴리즈 노트
-    releaseNotes = "SpiritScribe 앱의 새로운 테스트 빌드입니다. 새로운 기능과 개선사항을 테스트해보세요!"
+    // 동적 릴리즈 노트 (Git 해시와 빌드 시간 포함)
+    releaseNotes = """
+        🥃 SpiritScribe 앱 새로운 빌드
+        
+        📦 버전: ${android.defaultConfig.versionName}
+        🔗 커밋: ${getGitHash()}
+        🕒 빌드 시간: ${getBuildTime()}
+        
+        새로운 기능과 개선사항을 테스트해보세요!
+        피드백은 Firebase Console을 통해 제공해주세요.
+    """.trimIndent()
     
     // Firebase App Distribution에 업로드할 때 사용할 서비스 계정 키 파일 경로
     // (선택사항 - CLI에서 설정할 수도 있음)

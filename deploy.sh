@@ -39,8 +39,28 @@ print_info() {
 BUILD_TYPE=${1:-debug}
 RELEASE_NOTES=${2:-"SpiritScribe 앱의 새로운 테스트 빌드입니다!"}
 
+# Git 정보 가져오기
+GIT_HASH=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+BUILD_TIME=$(date '+%Y%m%d-%H%M')
+VERSION_NAME="0.0.1_${GIT_HASH}"
+
+# 동적 릴리즈 노트 생성 (사용자가 제공하지 않은 경우)
+if [ "$2" = "" ]; then
+    RELEASE_NOTES="🥃 SpiritScribe 앱 새로운 빌드
+
+📦 버전: ${VERSION_NAME}
+🔗 커밋: ${GIT_HASH}
+🕒 빌드 시간: ${BUILD_TIME}
+
+새로운 기능과 개선사항을 테스트해보세요!
+피드백은 Firebase Console을 통해 제공해주세요."
+fi
+
 print_header
 print_info "빌드 타입: $BUILD_TYPE"
+print_info "Git 커밋: $GIT_HASH"
+print_info "버전명: $VERSION_NAME"
+print_info "빌드 시간: $BUILD_TIME"
 print_info "릴리즈 노트: $RELEASE_NOTES"
 echo
 
