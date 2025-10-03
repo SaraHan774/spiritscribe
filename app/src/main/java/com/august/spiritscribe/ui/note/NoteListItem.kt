@@ -42,8 +42,8 @@ fun NoteListItem(
                 .padding(horizontal = 16.dp, vertical = 8.dp)
                 .clickable { onClickItem(uim) }
                 .shadow(
-                    elevation = 8.dp,
-                    shape = RoundedCornerShape(16.dp),
+                    elevation = 2.dp,
+                    shape = RoundedCornerShape(4.dp),
                     spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
                 ),
             shape = RoundedCornerShape(16.dp),

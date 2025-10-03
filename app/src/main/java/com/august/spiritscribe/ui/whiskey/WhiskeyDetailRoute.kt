@@ -106,7 +106,7 @@ fun WhiskeyDetailRoute(
                         contentDescription = null
                     )
                 },
-                text = { Text("테이스팅 노트 추가") },
+                text = {},
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary
             )
@@ -345,7 +345,7 @@ private fun WhiskeyStatsSection(
 ) {
     ElevatedCard(
         modifier = modifier,
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp), // Reduced from 8.dp
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp), // Reduced from 8.dp
         shape = RoundedCornerShape(16.dp) // Reduced from 20.dp
     ) {
         Column(

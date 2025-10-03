@@ -472,7 +472,7 @@ fun SuggestedUserCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onUserClick() },
-        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface

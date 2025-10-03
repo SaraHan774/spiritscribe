@@ -24,7 +24,7 @@ fun CreativeRatingChip(
     val ratingDisplay = getRatingDisplay(rating)
     
     Surface(
-        modifier = modifier.widthIn(min = 40.dp, max = 80.dp), // 최소/최대 너비 제한
+        modifier = modifier.widthIn(min = 40.dp), // 최소/최대 너비 제한
         shape = RoundedCornerShape(12.dp),
         color = Color.Transparent
     ) {
