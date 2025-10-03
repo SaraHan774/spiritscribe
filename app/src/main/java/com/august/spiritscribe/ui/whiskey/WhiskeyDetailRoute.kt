@@ -1006,18 +1006,20 @@ private fun WhiskeyDetailRouteContent(
             )
         },
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = onAddNote,
-                icon = { 
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = null
-                    )
-                },
-                text = { Text("테이스팅 노트 추가") },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            )
+            if (notes.isNotEmpty()) {
+                ExtendedFloatingActionButton(
+                    onClick = onAddNote,
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = null
+                        )
+                    },
+                    text = { Text("NOTE") },
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
+            }
         }
     ) { paddingValues ->
         LazyColumn(
