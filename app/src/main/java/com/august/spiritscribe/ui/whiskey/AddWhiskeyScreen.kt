@@ -24,6 +24,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddPhotoAlternate
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -52,6 +53,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -60,11 +62,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.august.spiritscribe.domain.model.WhiskeyType
+import com.august.spiritscribe.ui.theme.SpiritScribeTheme
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -147,46 +149,56 @@ private fun AddWhiskeyScreenContent(
     snackbarHostState: SnackbarHostState,
 ) {
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        // 배경 그라데이션
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.primary.copy(alpha = 0.05f),
-                            MaterialTheme.colorScheme.surface,
-                            MaterialTheme.colorScheme.secondary.copy(alpha = 0.03f)
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        "위스키 추가",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "뒤로가기"
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface
+                )
+            )
+        },
+        containerColor = Color.Transparent,
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { paddingValues ->
+        Box(modifier = Modifier.fillMaxSize()) {
+            // 배경 그라데이션
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.05f),
+                                MaterialTheme.colorScheme.surface,
+                                MaterialTheme.colorScheme.secondary.copy(alpha = 0.03f)
+                            )
                         )
                     )
-                )
-        )
+            )
 
-        Scaffold(
-            modifier = Modifier.fillMaxSize(),
-            containerColor = Color.Transparent,
-            topBar = {
-                TopAppBar(
-                    title = {
-                        Text(
-                            "Add Whiskey",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.Transparent
-                    )
-                )
-            },
-            snackbarHost = { SnackbarHost(snackbarHostState) }
-        ) { paddingValues ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .padding(horizontal = 20.dp, vertical = 16.dp)
+                    .padding(horizontal = 20.dp, vertical = 12.dp)
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
@@ -468,43 +480,30 @@ private fun AddWhiskeyScreenContent(
     }
 }
 
-// Mock 데이터 생성
-private val mockEmptyState = AddWhiskeyState()
+// Mock 데이터 생성 함수
+private fun createMockAddWhiskeyState(): AddWhiskeyState {
+    return AddWhiskeyState(
+        name = "Macallan 18",
+        distillery = "The Macallan",
+        type = WhiskeyType.SINGLEMALT,
+        age = "18",
+        year = "2020",
+        abv = "43.0",
+        price = "450000",
+        region = "Speyside",
+        description = "Rich and complex single malt with notes of dried fruit, spice, and oak.",
+        imageUris = emptyList(),
+        isLoading = false,
+        error = null
+    )
+}
 
-private val mockFilledState = AddWhiskeyState(
-    name = "Macallan 18년",
-    distillery = "Macallan",
-    type = WhiskeyType.SINGLEMALT,
-    age = "18",
-    year = "2020",
-    abv = "43.0",
-    price = "150000",
-    region = "스코틀랜드",
-    description = "매끄럽고 풍부한 맛의 싱글 몰트 위스키. 바닐라와 오크의 향이 조화롭게 어우러져 있습니다.",
-    rating = "92"
-)
-
-private val mockLoadingState = AddWhiskeyState(
-    name = "Macallan 18년",
-    distillery = "Macallan",
-    type = WhiskeyType.SINGLEMALT,
-    age = "18",
-    year = "2020",
-    abv = "43.0",
-    price = "150000",
-    region = "스코틀랜드",
-    description = "매끄럽고 풍부한 맛의 싱글 몰트 위스키.",
-    rating = "92",
-    isLoading = true
-)
-
-// Preview 함수들
-@Preview(name = "위스키 추가 화면 - 기본", showBackground = true)
+@Preview(showBackground = true)
 @Composable
-private fun AddWhiskeyScreenPreview() {
-    MaterialTheme {
+fun AddWhiskeyScreenPreview() {
+    SpiritScribeTheme {
         AddWhiskeyScreenContent(
-            state = mockEmptyState,
+            state = createMockAddWhiskeyState(),
             onNavigateBack = {},
             onClickImageIcon = {},
             onSaveWhiskey = {},
@@ -520,17 +519,17 @@ private fun AddWhiskeyScreenPreview() {
             onUpdateRating = {},
             onAddImage = {},
             onRemoveImage = {},
-            snackbarHostState = SnackbarHostState(),
+            snackbarHostState = SnackbarHostState()
         )
     }
 }
 
-@Preview(name = "위스키 추가 화면 - 입력된 상태", showBackground = true)
+@Preview(showBackground = true, name = "Loading State")
 @Composable
-private fun AddWhiskeyScreenFilledPreview() {
-    MaterialTheme {
+fun AddWhiskeyScreenLoadingPreview() {
+    SpiritScribeTheme {
         AddWhiskeyScreenContent(
-            state = mockFilledState,
+            state = createMockAddWhiskeyState().copy(isLoading = true),
             onNavigateBack = {},
             onClickImageIcon = {},
             onSaveWhiskey = {},
@@ -546,7 +545,33 @@ private fun AddWhiskeyScreenFilledPreview() {
             onUpdateRating = {},
             onAddImage = {},
             onRemoveImage = {},
-            snackbarHostState = SnackbarHostState(),
+            snackbarHostState = SnackbarHostState()
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Empty Form")
+@Composable
+fun AddWhiskeyScreenEmptyPreview() {
+    SpiritScribeTheme {
+        AddWhiskeyScreenContent(
+            state = AddWhiskeyState(),
+            onNavigateBack = {},
+            onClickImageIcon = {},
+            onSaveWhiskey = {},
+            onUpdateName = {},
+            onUpdateDistillery = {},
+            onUpdateType = {},
+            onUpdateAge = {},
+            onUpdateYear = {},
+            onUpdateAbv = {},
+            onUpdatePrice = {},
+            onUpdateRegion = {},
+            onUpdateDescription = {},
+            onUpdateRating = {},
+            onAddImage = {},
+            onRemoveImage = {},
+            snackbarHostState = SnackbarHostState()
         )
     }
 }

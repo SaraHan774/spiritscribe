@@ -33,12 +33,14 @@ import java.util.*
 @Composable
 fun FeedScreen(
     onWhiskeyClick: (String) -> Unit,
+    onAddWhiskeyClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: FeedViewModel = hiltViewModel()
 ) {
     val feedItems by viewModel.feedItems.collectAsState()
 
-    when {
+    Box(modifier = modifier.fillMaxSize()) {
+        when {
             viewModel.isLoading -> {
                 LoadingContent()
             }
@@ -67,6 +69,22 @@ fun FeedScreen(
                 }
             }
         }
+
+        // FloatingActionButton
+        FloatingActionButton(
+            onClick = onAddWhiskeyClick,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp),
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
+        ) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "위스키 추가"
+            )
+        }
+    }
 }
 
 @Composable
@@ -90,8 +108,8 @@ private fun WhiskeyFeedItem(
                 onWhiskeyClick(item.id)
             },
         elevation = CardDefaults.elevatedCardElevation(
-            defaultElevation = 6.dp,
-            pressedElevation = 8.dp
+            defaultElevation = 2.dp,
+            pressedElevation = 4.dp
         ),
         shape = RoundedCornerShape(20.dp)
     ) {

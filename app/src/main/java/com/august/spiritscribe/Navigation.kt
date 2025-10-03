@@ -116,11 +116,6 @@ sealed class Screen(val route: String) {
         override val label: String = "검색"
     }
     
-    object Create : Screen("create") {
-        override val icon: ImageVector = Icons.Filled.LocalBar
-        override val label: String = "추가"
-    }
-    
     object Profile : Screen("profile") {
         override val icon: ImageVector = Icons.Filled.LibraryBooks
         override val label: String = "노트"
@@ -163,17 +158,15 @@ fun AppNavigation(modifier: Modifier = Modifier, navController: NavHostControlle
                 FeedScreen(
                     onWhiskeyClick = { id ->
                         navController.navigate(Screen.WhiskeyDetail.createRoute(id))
+                    },
+                    onAddWhiskeyClick = {
+                        navController.navigate(AddWhiskey)
                     }
                 )
             }
             composable(Screen.Search.route) {
                 SearchScreen(
                     onWhiskeyClick = {}
-                )
-            }
-            composable(Screen.Create.route) {
-                AddWhiskeyRoute(
-                    onNavigateBack = { navController.navigateUp() }
                 )
             }
             composable(Screen.Profile.route) {
@@ -195,6 +188,12 @@ fun AppNavigation(modifier: Modifier = Modifier, navController: NavHostControlle
                     onAddNote = {
                         navController.navigateToAddWhiskeyNote(backStackEntry.arguments?.getString("whiskeyId") ?: "")
                     },
+                    onNavigateBack = { navController.navigateUp() }
+                )
+            }
+            
+            composable<AddWhiskey> {
+                AddWhiskeyRoute(
                     onNavigateBack = { navController.navigateUp() }
                 )
             }
@@ -264,7 +263,8 @@ fun NavController.navigateToAddWhiskey() {
 fun NavGraphBuilder.feedDestination() {
     composable<Feed> {
         FeedScreen(
-            onWhiskeyClick = { id -> /* TODO: Navigate to whiskey detail */ }
+            onWhiskeyClick = { id -> /* TODO: Navigate to whiskey detail */ },
+            onAddWhiskeyClick = { /* TODO: Navigate to add whiskey */ }
         )
     }
 }
@@ -390,7 +390,6 @@ fun BottomNavigationBar(
         val items = listOf(
             Screen.Feed,
             Screen.Search,
-            Screen.Create,
             Screen.FlavorWheel,
             Screen.Profile
         )
