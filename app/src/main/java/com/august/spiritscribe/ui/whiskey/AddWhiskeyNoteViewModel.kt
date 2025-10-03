@@ -6,6 +6,8 @@ import com.august.spiritscribe.domain.model.Whiskey
 import com.august.spiritscribe.domain.model.WhiskeyNote
 import com.august.spiritscribe.domain.model.FinalRating
 import com.august.spiritscribe.domain.model.ColorMeter
+import com.august.spiritscribe.domain.model.FlavorIntensity
+import com.august.spiritscribe.domain.model.Flavor
 import com.august.spiritscribe.domain.repository.WhiskeyRepository
 import com.august.spiritscribe.domain.repository.WhiskeyNoteRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -34,6 +36,9 @@ class AddWhiskeyNoteViewModel @Inject constructor(
     private val _isSaving = MutableStateFlow(false)
     val isSaving: StateFlow<Boolean> = _isSaving.asStateFlow()
 
+    private val _selectedFlavors = MutableStateFlow<Map<Flavor, Int>>(emptyMap())
+    val selectedFlavors: StateFlow<Map<Flavor, Int>> = _selectedFlavors.asStateFlow()
+
     fun loadWhiskey(whiskeyId: String) {
         viewModelScope.launch {
             try {
@@ -53,6 +58,30 @@ class AddWhiskeyNoteViewModel @Inject constructor(
 
     fun updateRating(newRating: Int) {
         _rating.value = newRating
+    }
+
+    fun toggleFlavor(flavor: Flavor) {
+        val currentFlavors = _selectedFlavors.value.toMutableMap()
+        if (currentFlavors.containsKey(flavor)) {
+            currentFlavors.remove(flavor)
+        } else {
+            currentFlavors[flavor] = 3 // 기본 강도 3
+        }
+        _selectedFlavors.value = currentFlavors
+    }
+
+    fun updateFlavorIntensity(flavor: Flavor, intensity: Int) {
+        val currentFlavors = _selectedFlavors.value.toMutableMap()
+        currentFlavors[flavor] = intensity
+        _selectedFlavors.value = currentFlavors
+    }
+
+    fun isFlavorSelected(flavor: Flavor): Boolean {
+        return _selectedFlavors.value.containsKey(flavor)
+    }
+
+    fun getFlavorIntensity(flavor: Flavor): Int {
+        return _selectedFlavors.value[flavor] ?: 3
     }
 
     fun saveNote(onSuccess: () -> Unit) {
@@ -84,7 +113,9 @@ class AddWhiskeyNoteViewModel @Inject constructor(
                         finish = rating.value * 20,
                         overall = rating.value * 20
                     ),
-                    flavors = emptyList() // 나중에 플레이버 선택 기능 추가 가능
+                    flavors = _selectedFlavors.value.map { (flavor, intensity) ->
+                        FlavorIntensity(flavor = flavor, intensity = intensity)
+                    }
                 )
                 
                 val result = whiskeyNoteRepository.createNote(note)

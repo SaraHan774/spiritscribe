@@ -5,6 +5,10 @@ import androidx.room.PrimaryKey
 import com.august.spiritscribe.domain.model.ColorMeter
 import com.august.spiritscribe.domain.model.FinalRating
 import com.august.spiritscribe.domain.model.WhiskeyNote
+import com.august.spiritscribe.domain.model.FlavorIntensity
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 
 @Entity(tableName = "whiskey_notes")
 data class WhiskeyNoteEntity(
@@ -28,6 +32,7 @@ data class WhiskeyNoteEntity(
     val finish: Int?,
     val overall: Int?,
     val imageUrl: String?,
+    val flavorsJson: String? = null,
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis()
 ) {
@@ -46,7 +51,13 @@ data class WhiskeyNoteEntity(
             hue = colorHue ?: "",
             intensity = colorIntensity ?: 0
         ),
-        flavors = emptyList(), // Flavors are loaded separately through FlavorProfileDao
+        flavors = try {
+            flavorsJson?.let { 
+                Json.decodeFromString<List<FlavorIntensity>>(it) 
+            } ?: emptyList()
+        } catch (e: Exception) {
+            emptyList()
+        },
         additionalNotes = additionalNotes,
         finalRating = FinalRating(
             appearance = appearance ?: 0,
@@ -81,6 +92,13 @@ data class WhiskeyNoteEntity(
             finish = note.finalRating.finish,
             overall = note.finalRating.overall,
             imageUrl = note.imageUrl,
+            flavorsJson = try {
+                if (note.flavors.isNotEmpty()) {
+                    Json.encodeToString(note.flavors)
+                } else null
+            } catch (e: Exception) {
+                null
+            },
             createdAt = note.createdAt,
             updatedAt = note.updatedAt
         )

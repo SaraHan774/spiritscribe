@@ -1,5 +1,6 @@
 package com.august.spiritscribe.domain.model
 
+import kotlinx.serialization.Serializable
 import java.util.UUID
 
 /**
@@ -26,11 +27,13 @@ data class WhiskeyNote(
     val imageUrl: String? = null,
 )
 
+@Serializable
 data class FlavorIntensity(
     val flavor: Flavor,
     val intensity: Int // Scale from 0 to 5
 )
 
+@Serializable
 enum class Flavor {
     MALT {      // Grainy, cereal notes
         override val emoji = "🌾"

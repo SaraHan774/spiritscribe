@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
         WhiskeyNoteEntity::class,
         FlavorProfileEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -51,30 +51,53 @@ abstract class SpiritScribeDatabase : RoomDatabase() {
         }
 
         private suspend fun prepopulateDatabase(database: SpiritScribeDatabase, context: Context) {
+            android.util.Log.d("SpiritScribeDatabase", "🚀 prepopulateDatabase 시작")
             try {
                 // JSON 파일에서 시드 데이터 로드
+                android.util.Log.d("SpiritScribeDatabase", "📂 시드 데이터 로드 시작")
                 val seedData = SeedDataLoader.loadSeedData(context)
+                android.util.Log.d("SpiritScribeDatabase", "✅ 시드 데이터 로드 완료: 위스키 ${seedData.whiskies.size}개, 노트 ${seedData.whiskeyNotes.size}개, 플레이버 ${seedData.flavorProfiles.size}개")
 
                 val whiskeyDao = database.whiskeyDao()
                 val whiskeyNoteDao = database.whiskeyNoteDao()
                 val flavorProfileDao = database.flavorProfileDao()
 
                 // 위스키 데이터 삽입
-                seedData.whiskies.forEach { whiskey ->
-                    whiskeyDao.insertWhiskey(whiskey)
+                android.util.Log.d("SpiritScribeDatabase", "🍺 위스키 데이터 삽입 시작")
+                seedData.whiskies.forEachIndexed { index, whiskey ->
+                    try {
+                        whiskeyDao.insertWhiskey(whiskey)
+                        android.util.Log.d("SpiritScribeDatabase", "✅ 위스키 ${index + 1}/${seedData.whiskies.size} 삽입: ${whiskey.name}")
+                    } catch (e: Exception) {
+                        android.util.Log.e("SpiritScribeDatabase", "❌ 위스키 삽입 실패: ${whiskey.name}", e)
+                    }
                 }
 
                 // 위스키 노트 데이터 삽입
-                seedData.whiskeyNotes.forEach { note ->
-                    whiskeyNoteDao.insertNote(note)
+                android.util.Log.d("SpiritScribeDatabase", "📝 위스키 노트 데이터 삽입 시작")
+                seedData.whiskeyNotes.forEachIndexed { index, note ->
+                    try {
+                        whiskeyNoteDao.insertNote(note)
+                        android.util.Log.d("SpiritScribeDatabase", "✅ 노트 ${index + 1}/${seedData.whiskeyNotes.size} 삽입: ${note.name}")
+                    } catch (e: Exception) {
+                        android.util.Log.e("SpiritScribeDatabase", "❌ 노트 삽입 실패: ${note.name}", e)
+                    }
                 }
 
                 // 풍미 프로파일 데이터 삽입
-                seedData.flavorProfiles.forEach { profile ->
-                    flavorProfileDao.insertFlavorProfile(profile)
+                android.util.Log.d("SpiritScribeDatabase", "🌿 풍미 프로파일 데이터 삽입 시작")
+                seedData.flavorProfiles.forEachIndexed { index, profile ->
+                    try {
+                        flavorProfileDao.insertFlavorProfile(profile)
+                        android.util.Log.d("SpiritScribeDatabase", "✅ 플레이버 ${index + 1}/${seedData.flavorProfiles.size} 삽입")
+                    } catch (e: Exception) {
+                        android.util.Log.e("SpiritScribeDatabase", "❌ 플레이버 삽입 실패", e)
+                    }
                 }
-            } catch (e: Exception) {
 
+                android.util.Log.d("SpiritScribeDatabase", "🎉 데이터베이스 초기화 완료!")
+            } catch (e: Exception) {
+                android.util.Log.e("SpiritScribeDatabase", "❌ 시드 데이터 로드 실패", e)
                 // JSON 로드 실패 시 최소한의 샘플 데이터 삽입
                 insertMinimalSampleData(database)
             }
@@ -84,6 +107,7 @@ abstract class SpiritScribeDatabase : RoomDatabase() {
          * JSON 로드 실패 시 사용할 최소한의 샘플 데이터
          */
         private suspend fun insertMinimalSampleData(database: SpiritScribeDatabase) {
+            android.util.Log.d("SpiritScribeDatabase", "🔄 최소한의 샘플 데이터 삽입 시작")
             val whiskeyDao = database.whiskeyDao()
 
             val sampleWhiskey = WhiskeyEntity(
@@ -105,11 +129,11 @@ abstract class SpiritScribeDatabase : RoomDatabase() {
 
             try {
                 whiskeyDao.insertWhiskey(sampleWhiskey)
-                android.util.Log.d("SpiritScribeDatabase", "Inserted minimal sample data")
+                android.util.Log.d("SpiritScribeDatabase", "✅ 최소한의 샘플 데이터 삽입 완료: ${sampleWhiskey.name}")
             } catch (e: Exception) {
                 android.util.Log.e(
                     "SpiritScribeDatabase",
-                    "Failed to insert even minimal sample data",
+                    "❌ 최소한의 샘플 데이터 삽입도 실패",
                     e
                 )
             }

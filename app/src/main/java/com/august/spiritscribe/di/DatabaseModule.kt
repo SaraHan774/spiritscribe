@@ -28,7 +28,7 @@ object DatabaseModule {
         val database = Room.databaseBuilder(
             context,
             SpiritScribeDatabase::class.java,
-            "spiritscribe_v3.db"  // 새로운 데이터베이스 파일명으로 확실한 재생성
+            "spiritscribe_v5.db"  // 새로운 데이터베이스 파일명으로 확실한 재생성
         )
         .fallbackToDestructiveMigration()
         .addCallback(callback)
