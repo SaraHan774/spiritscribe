@@ -31,52 +31,25 @@ fun EvolutionScreen(
     val evolutionState by viewModel.evolutionState.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
+    var showGuideDialog by remember { mutableStateOf(false) }
     
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { 
-                    Text(
-                        "테이스트 진화",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-                },
-                actions = {
-                    IconButton(
-                        onClick = { viewModel.refreshEvolutionData() }
-                    ) {
-                        Icon(
-                            Icons.Default.Refresh,
-                            contentDescription = "새로고침"
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent
-                )
-            )
-        }
-    ) { paddingValues ->
+    Box(
+        modifier = modifier.fillMaxSize()
+    ) {
+        // 배경 그라데이션
         Box(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            // 배경 그라데이션
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                Color(0xFFF8F9FA),
-                                Color(0xFFE9ECEF),
-                                Color(0xFFDEE2E6)
-                            )
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            Color(0xFFF8F9FA),
+                            Color(0xFFE9ECEF),
+                            Color(0xFFDEE2E6)
                         )
                     )
-            )
+                )
+        )
             
             when {
                 isLoading -> {
@@ -94,18 +67,30 @@ fun EvolutionScreen(
                 else -> {
                     EvolutionContent(
                         evolution = evolutionState.evolution!!,
-                        analysis = evolutionState.analysis!!
+                        analysis = evolutionState.analysis!!,
+                        showGuideDialog = showGuideDialog,
+                        onShowGuideDialog = { showGuideDialog = it },
+                        onRefreshData = { viewModel.refreshEvolutionData() }
                     )
                 }
             }
+        
+        
+        // 가이드 다이얼로그
+        if (showGuideDialog) {
+            EvolutionGuideDialog(
+                onDismiss = { showGuideDialog = false }
+            )
         }
     }
 }
 
 @Composable
-private fun LoadingContent() {
+private fun LoadingContent(
+    modifier: Modifier = Modifier
+) {
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -131,9 +116,12 @@ private fun LoadingContent() {
 }
 
 @Composable
-private fun ErrorContent(error: String) {
+private fun ErrorContent(
+    error: String,
+    modifier: Modifier = Modifier
+) {
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -161,9 +149,11 @@ private fun ErrorContent(error: String) {
 }
 
 @Composable
-private fun EmptyContent() {
+private fun EmptyContent(
+    modifier: Modifier = Modifier
+) {
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -196,9 +186,54 @@ private fun EmptyContent() {
 }
 
 @Composable
+private fun EvolutionHeader(
+    onShowGuideDialog: (Boolean) -> Unit,
+    onRefreshData: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // 아이콘들
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // Info 아이콘
+            IconButton(
+                onClick = { onShowGuideDialog(true) }
+            ) {
+                Icon(
+                    Icons.Default.Info,
+                    contentDescription = "테이스트 진화 가이드",
+                    tint = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+            
+            // 새로고침 아이콘
+            IconButton(
+                onClick = onRefreshData
+            ) {
+                Icon(
+                    Icons.Default.Refresh,
+                    contentDescription = "새로고침",
+                    tint = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun EvolutionContent(
     evolution: com.august.spiritscribe.domain.model.TasteEvolution,
-    analysis: com.august.spiritscribe.domain.model.EvolutionAnalysis
+    analysis: com.august.spiritscribe.domain.model.EvolutionAnalysis,
+    showGuideDialog: Boolean,
+    onShowGuideDialog: (Boolean) -> Unit,
+    onRefreshData: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -207,6 +242,13 @@ private fun EvolutionContent(
             .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
+        // 헤더 섹션 (아이콘들과 함께 스크롤)
+        EvolutionHeader(
+            onShowGuideDialog = onShowGuideDialog,
+            onRefreshData = onRefreshData,
+            modifier = Modifier.padding(top = 16.dp)
+        )
+        
         // DNA 시각화 섹션
         DNAVisualizationSection(
             evolution = evolution,
