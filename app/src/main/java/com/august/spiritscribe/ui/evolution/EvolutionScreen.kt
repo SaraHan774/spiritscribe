@@ -85,7 +85,7 @@ fun EvolutionScreen(
                     ErrorContent(error = error!!)
                 }
                 
-                evolutionState.evolution == null || evolutionState.evolution.totalNotes == 0 -> {
+                evolutionState.evolution == null || (evolutionState.evolution?.totalNotes ?: 0) == 0 -> {
                     EmptyContent()
                 }
                 
