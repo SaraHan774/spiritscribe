@@ -98,18 +98,16 @@ fun WhiskeyDetailRoute(
             )
         },
         floatingActionButton = {
-            ExtendedFloatingActionButton(
+            SmallFloatingActionButton(
                 onClick = onAddNote,
-                icon = { 
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = null
-                    )
-                },
-                text = {},
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary
-            )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = null
+                )
+            }
         }
     ) { paddingValues ->
         LazyColumn(

@@ -27,7 +27,7 @@ data class TasteEvolution(
 enum class EvolutionStage(val displayName: String, val emoji: String, val description: String) {
     EGG("알", "🥚", "테이스트 여정의 시작점"),
     LARVA("애벌레", "🐛", "기본 취향이 형성되는 단계"),
-    PUPA("번데기", "🦋", "취향이 변화하고 성숙해지는 단계"),
+    PUPA("번데기", "🥐", "취향이 변화하고 성숙해지는 단계"),
     BUTTERFLY("나비", "🦋", "완성된 테이스트 마스터");
     
     val nextStage: EvolutionStage?
