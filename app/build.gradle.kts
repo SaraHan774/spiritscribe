@@ -25,6 +25,11 @@ android {
     }
 
     buildTypes {
+        debug {
+            // App Distribution을 위한 디버그 빌드 설정
+            isDebuggable = true
+            versionNameSuffix = "-debug"
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -92,4 +97,17 @@ dependencies {
 
     implementation(libs.androidx.paging.runtime) // For non-Compose parts
     implementation(libs.androidx.paging.compose) // <-- THIS IS NEEDED
+}
+
+// Firebase App Distribution 설정
+firebaseAppDistribution {
+    // 테스터 그룹 설정 (이메일 주소들을 콤마로 구분)
+    groups = "testers"
+    
+    // 릴리즈 노트
+    releaseNotes = "SpiritScribe 앱의 새로운 테스트 빌드입니다. 새로운 기능과 개선사항을 테스트해보세요!"
+    
+    // Firebase App Distribution에 업로드할 때 사용할 서비스 계정 키 파일 경로
+    // (선택사항 - CLI에서 설정할 수도 있음)
+    // serviceCredentialsFile = "path/to/service-account-key.json"
 }
