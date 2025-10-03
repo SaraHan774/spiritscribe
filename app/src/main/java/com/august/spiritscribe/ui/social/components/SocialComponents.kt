@@ -63,7 +63,7 @@ fun SocialStories(
     onStoryClick: (String) -> Unit
 ) {
     LazyRow(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.padding(top = 16.dp).fillMaxWidth(),
         contentPadding = PaddingValues(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
