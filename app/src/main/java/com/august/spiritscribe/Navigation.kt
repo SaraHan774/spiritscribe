@@ -116,7 +116,7 @@ sealed class Screen(val route: String) {
     
     object Create : Screen("create") {
         override val icon: ImageVector = Icons.Filled.Add
-        override val label: String = "Add Note"
+        override val label: String = "Add Whiskey"
     }
     
     object Profile : Screen("profile") {
@@ -170,9 +170,8 @@ fun AppNavigation(modifier: Modifier = Modifier, navController: NavHostControlle
                 )
             }
             composable(Screen.Create.route) {
-                AddNoteRoute(
-//                    noteId = backStackEntry.arguments?.getString("noteId") ?: "",
-//                    onNavigateBack = { navController.navigateUp() }
+                AddWhiskeyRoute(
+                    onNavigateBack = { navController.navigateUp() }
                 )
             }
             composable(Screen.Profile.route) {
@@ -309,7 +308,11 @@ fun NavGraphBuilder.noteDestination(
             modifier = Modifier.fillMaxSize()
         )
     }
-    composable<AddNote> { AddNoteRoute() }
+    composable<AddNote> { 
+        AddWhiskeyRoute(
+            onNavigateBack = onNavigateBack
+        ) 
+    }
     composable<AddWhiskeyNote> { navBackStackEntry: NavBackStackEntry ->
         val addNote: AddWhiskeyNote = navBackStackEntry.toRoute()
         AddWhiskeyNoteRoute(
@@ -349,14 +352,12 @@ fun FeedRoute() {
 }
 
 @Composable
-fun AddNoteRoute() {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        NewThreadScreen()
-    }
+fun AddWhiskeyRoute(
+    onNavigateBack: () -> Unit
+) {
+    AddWhiskeyScreen(
+        onNavigateBack = onNavigateBack
+    )
 }
 
 @Composable

@@ -33,12 +33,6 @@ data class AddWhiskeyState(
     val description: String = "",
     val rating: String = "",
     val imageUris: List<Uri> = emptyList(),
-    val sweetness: Int = 1,
-    val smokiness: Int = 1,
-    val spiciness: Int = 1,
-    val fruitiness: Int = 1,
-    val woodiness: Int = 1,
-    val flavorNotes: List<String> = emptyList(),
     val isLoading: Boolean = false,
     val error: String? = null,
     val isSuccess: Boolean = false
@@ -57,13 +51,6 @@ sealed class AddWhiskeyEvent {
     data class UpdateRating(val rating: String) : AddWhiskeyEvent()
     data class AddImage(val uri: Uri) : AddWhiskeyEvent()
     data class RemoveImage(val uri: Uri) : AddWhiskeyEvent()
-    data class UpdateSweetness(val value: Int) : AddWhiskeyEvent()
-    data class UpdateSmokiness(val value: Int) : AddWhiskeyEvent()
-    data class UpdateSpiciness(val value: Int) : AddWhiskeyEvent()
-    data class UpdateFruitiness(val value: Int) : AddWhiskeyEvent()
-    data class UpdateWoodiness(val value: Int) : AddWhiskeyEvent()
-    data class AddFlavorNote(val note: String) : AddWhiskeyEvent()
-    data class RemoveFlavorNote(val note: String) : AddWhiskeyEvent()
     object SaveWhiskey : AddWhiskeyEvent()
 }
 
@@ -106,17 +93,6 @@ class AddWhiskeyViewModel @Inject constructor(
             is AddWhiskeyEvent.RemoveImage -> {
                 updateState { it.copy(imageUris = it.imageUris - event.uri) }
             }
-            is AddWhiskeyEvent.UpdateSweetness -> updateState { it.copy(sweetness = event.value) }
-            is AddWhiskeyEvent.UpdateSmokiness -> updateState { it.copy(smokiness = event.value) }
-            is AddWhiskeyEvent.UpdateSpiciness -> updateState { it.copy(spiciness = event.value) }
-            is AddWhiskeyEvent.UpdateFruitiness -> updateState { it.copy(fruitiness = event.value) }
-            is AddWhiskeyEvent.UpdateWoodiness -> updateState { it.copy(woodiness = event.value) }
-            is AddWhiskeyEvent.AddFlavorNote -> {
-                updateState { it.copy(flavorNotes = it.flavorNotes + event.note) }
-            }
-            is AddWhiskeyEvent.RemoveFlavorNote -> {
-                updateState { it.copy(flavorNotes = it.flavorNotes - event.note) }
-            }
             AddWhiskeyEvent.SaveWhiskey -> saveWhiskey()
         }
     }
@@ -154,18 +130,7 @@ class AddWhiskeyViewModel @Inject constructor(
                     updatedAt = now
                 )
 
-                val flavorProfile = FlavorProfileEntity(
-                    id = UUID.randomUUID().toString(),
-                    whiskeyId = whiskeyId,
-                    sweetness = state.sweetness,
-                    smokiness = state.smokiness,
-                    spiciness = state.spiciness,
-                    fruitiness = state.fruitiness,
-                    woodiness = state.woodiness,
-                    notes = state.flavorNotes.joinToString(" / ")
-                )
-
-                whiskeyDao.insertWhiskeyWithProfile(whiskey, flavorProfile)
+                whiskeyDao.insertWhiskey(whiskey)
                 updateState { it.copy(isLoading = false, isSuccess = true) }
             } catch (e: Exception) {
                 updateState { it.copy(isLoading = false, error = e.message) }
