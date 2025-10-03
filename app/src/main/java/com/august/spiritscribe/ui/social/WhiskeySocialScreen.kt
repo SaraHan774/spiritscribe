@@ -137,7 +137,7 @@ private fun HomeFeedTab(
 
 @Composable
 private fun ExploreTab(
-    exploreState: com.august.spiritscribe.ui.social.model.ExploreState,
+    exploreState: ExploreState,
     onRefresh: () -> Unit,
     onUserClick: (String) -> Unit,
     onWhiskeyClick: (String) -> Unit
