@@ -717,25 +717,6 @@ private fun EmptyNotesMessage(
                     lineHeight = 22.sp
                 )
             }
-            
-            Button(
-                onClick = onAddNote,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                contentPadding = PaddingValues(vertical = 16.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "테이스팅 노트 작성하기",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-            }
         }
     }
 }

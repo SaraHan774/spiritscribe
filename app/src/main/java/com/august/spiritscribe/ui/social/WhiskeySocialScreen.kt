@@ -1,8 +1,13 @@
 package com.august.spiritscribe.ui.social
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Explore
@@ -15,37 +20,46 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import kotlinx.coroutines.launch
 import com.august.spiritscribe.ui.social.components.*
 import com.august.spiritscribe.ui.social.model.*
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun WhiskeySocialScreen(
     modifier: Modifier = Modifier,
     viewModel: WhiskeySocialViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    var selectedTab by remember { mutableStateOf(0) }
+    val tabs = SocialTab.values()
+    val pagerState = rememberPagerState(pageCount = { tabs.size })
+    val scope = rememberCoroutineScope()
 
     Column(modifier = modifier.fillMaxSize()) {
         // 상단 탭바
         TabRow(
-            selectedTabIndex = selectedTab,
+            selectedTabIndex = pagerState.currentPage,
             containerColor = MaterialTheme.colorScheme.surface
         ) {
-            SocialTab.values().forEachIndexed { index, tab ->
+            tabs.forEachIndexed { index, tab ->
                 Tab(
-                    selected = selectedTab == index,
-                    onClick = { selectedTab = index },
+                    selected = pagerState.currentPage == index,
+                    onClick = { 
+                        scope.launch {
+                            pagerState.animateScrollToPage(index)
+                        }
+                    },
                     text = { Text(tab.title) },
-                    icon = { Icon(tab.icon, contentDescription = tab.title) }
                 )
             }
         }
 
-        // 콘텐츠 영역
-        Box(modifier = Modifier.fillMaxSize()) {
-            when (selectedTab) {
+        // HorizontalPager로 스와이프 가능한 콘텐츠
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxSize()
+        ) { page ->
+                when (page) {
                 0 -> {
                     // 홈 피드
                     HomeFeedTab(
@@ -201,7 +215,7 @@ private fun CheckInTab(
 
 @Composable
 private fun ProfileTab(
-    profileState: com.august.spiritscribe.ui.social.model.UserProfileState,
+    profileState: UserProfileState,
     onRefresh: () -> Unit,
     onEditProfile: () -> Unit,
     onPostClick: (String) -> Unit,
