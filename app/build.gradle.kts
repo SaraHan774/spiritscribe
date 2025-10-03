@@ -101,8 +101,8 @@ dependencies {
 
 // Firebase App Distribution 설정
 firebaseAppDistribution {
-    // 테스터 그룹 설정 (이메일 주소들을 콤마로 구분)
-    groups = "testers"
+    // 테스터 이메일 설정 (개별 이메일 주소들을 콤마로 구분)
+    testers = "sarahan774@gmail.com"
     
     // 릴리즈 노트
     releaseNotes = "SpiritScribe 앱의 새로운 테스트 빌드입니다. 새로운 기능과 개선사항을 테스트해보세요!"

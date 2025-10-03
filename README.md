@@ -116,7 +116,7 @@ adb shell am start -n com.august.spiritscribe/.MainActivity
 # Firebase App Distribution 업로드
 firebase appdistribution:distribute app/build/outputs/apk/debug/app-debug.apk \
   --app 1:481518662543:android:e182106b97b4f572e191fa \
-  --groups testers \
+  --testers sarahan774@gmail.com \
   --release-notes "SpiritScribe 앱의 새로운 테스트 빌드입니다!"
 ```
 
