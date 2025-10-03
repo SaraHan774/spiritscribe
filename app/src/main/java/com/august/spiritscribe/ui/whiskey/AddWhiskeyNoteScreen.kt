@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.BorderStroke
@@ -366,8 +367,8 @@ fun AddWhiskeyNoteScreen(
                         selectedFlavors = selectedFlavors,
                         onFlavorToggle = viewModel::toggleFlavor,
                         onIntensityChange = viewModel::updateFlavorIntensity,
-                        isFlavorSelected = viewModel::isFlavorSelected,
-                        getFlavorIntensity = viewModel::getFlavorIntensity
+                        isFlavorSelected = { flavor -> selectedFlavors.containsKey(flavor) },
+                        getFlavorIntensity = { flavor -> selectedFlavors[flavor] ?: 3 }
                     )
                 }
             }
@@ -384,17 +385,34 @@ private fun FlavorSelectionGrid(
     isFlavorSelected: (Flavor) -> Boolean,
     getFlavorIntensity: (Flavor) -> Int
 ) {
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        contentPadding = PaddingValues(horizontal = 4.dp)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState())
+            .padding(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        items(Flavor.values().toList()) { flavor ->
+        Flavor.values().forEach { flavor ->
+            val isSelected = isFlavorSelected(flavor)
+            val intensity = if (isSelected) getFlavorIntensity(flavor) else 3
+            
+            // 상태 변화 로그
+            LaunchedEffect(isSelected, intensity) {
+                android.util.Log.d("FlavorSelectionGrid", "📋 FlavorSelectionGrid: ${flavor.name}, isSelected=$isSelected, intensity=$intensity")
+            }
+            
             FlavorChip(
                 flavor = flavor,
-                isSelected = isFlavorSelected(flavor),
-                intensity = if (isFlavorSelected(flavor)) getFlavorIntensity(flavor) else 3,
-                onToggle = { onFlavorToggle(flavor) },
-                onIntensityChange = { intensity -> onIntensityChange(flavor, intensity) }
+                isSelected = isSelected,
+                intensity = intensity,
+                onToggle = { 
+                    android.util.Log.d("FlavorSelectionGrid", "👆 FlavorChip 터치됨: ${flavor.name}")
+                    onFlavorToggle(flavor) 
+                },
+                onIntensityChange = { intensity -> 
+                    android.util.Log.d("FlavorSelectionGrid", "🎯 강도 변경 요청: ${flavor.name} -> $intensity")
+                    onIntensityChange(flavor, intensity) 
+                }
             )
         }
     }
@@ -408,24 +426,30 @@ private fun FlavorChip(
     onToggle: () -> Unit,
     onIntensityChange: (Int) -> Unit
 ) {
+    // 상태 변화를 로그로 추적
+    LaunchedEffect(isSelected, intensity) {
+        android.util.Log.d("FlavorChip", "🎨 FlavorChip 리컴포지션: ${flavor.name}, isSelected=$isSelected, intensity=$intensity")
+    }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Surface(
             onClick = onToggle,
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(20.dp),
             color = if (isSelected) {
                 MaterialTheme.colorScheme.primaryContainer
             } else {
-                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
             },
             border = if (isSelected) {
                 BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
             } else {
-                BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+                BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))
             },
-            modifier = Modifier.size(80.dp)
+            modifier = Modifier
+                .size(85.dp)
+                .padding(2.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -454,25 +478,49 @@ private fun FlavorChip(
         
         // 강도 조절 (선택된 경우에만)
         if (isSelected) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                repeat(5) { index ->
-                    val isIntensitySelected = index < intensity
-                    Box(
-                        modifier = Modifier
-                            .size(8.dp)
-                            .background(
-                                color = if (isIntensitySelected) {
-                                    MaterialTheme.colorScheme.primary
-                                } else {
-                                    MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
-                                },
-                                shape = CircleShape
-                            )
-                            .clickable { onIntensityChange(index + 1) }
-                    )
+                Text(
+                    text = "강도",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontSize = 9.sp
+                )
+                
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    repeat(5) { index ->
+                        val isIntensitySelected = index < intensity
+                        Box(
+                            modifier = Modifier
+                                .size(12.dp)
+                                .background(
+                                    color = if (isIntensitySelected) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+                                    },
+                                    shape = CircleShape
+                                )
+                                .clickable { onIntensityChange(index + 1) }
+                        ) {
+                            if (isIntensitySelected) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(4.dp)
+                                        .background(
+                                            color = Color.White,
+                                            shape = CircleShape
+                                        )
+                                        .align(Alignment.Center)
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }

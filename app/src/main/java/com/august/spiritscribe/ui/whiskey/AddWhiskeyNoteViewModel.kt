@@ -61,23 +61,38 @@ class AddWhiskeyNoteViewModel @Inject constructor(
     }
 
     fun toggleFlavor(flavor: Flavor) {
+        android.util.Log.d("AddWhiskeyNoteViewModel", "🎯 toggleFlavor 호출됨: ${flavor.name}")
         val currentFlavors = _selectedFlavors.value.toMutableMap()
-        if (currentFlavors.containsKey(flavor)) {
+        val wasSelected = currentFlavors.containsKey(flavor)
+        android.util.Log.d("AddWhiskeyNoteViewModel", "🔍 현재 선택 상태: ${flavor.name} = $wasSelected")
+        
+        if (wasSelected) {
             currentFlavors.remove(flavor)
+            android.util.Log.d("AddWhiskeyNoteViewModel", "❌ 플레이버 해제: ${flavor.name}")
         } else {
             currentFlavors[flavor] = 3 // 기본 강도 3
+            android.util.Log.d("AddWhiskeyNoteViewModel", "✅ 플레이버 선택: ${flavor.name}")
         }
-        _selectedFlavors.value = currentFlavors
+        
+        // 새로운 Map 인스턴스 생성하여 StateFlow 업데이트 강제
+        val newMap = currentFlavors.toMap()
+        _selectedFlavors.value = newMap
+        android.util.Log.d("AddWhiskeyNoteViewModel", "📝 StateFlow 업데이트 완료: ${_selectedFlavors.value.keys}")
+        android.util.Log.d("AddWhiskeyNoteViewModel", "📊 전체 선택된 플레이버: ${_selectedFlavors.value}")
     }
 
     fun updateFlavorIntensity(flavor: Flavor, intensity: Int) {
+        android.util.Log.d("AddWhiskeyNoteViewModel", "🌶️ 플레이버 강도 변경: ${flavor.name} -> $intensity")
         val currentFlavors = _selectedFlavors.value.toMutableMap()
         currentFlavors[flavor] = intensity
-        _selectedFlavors.value = currentFlavors
+        _selectedFlavors.value = currentFlavors.toMap()
+        android.util.Log.d("AddWhiskeyNoteViewModel", "✅ 강도 업데이트 완료")
     }
 
     fun isFlavorSelected(flavor: Flavor): Boolean {
-        return _selectedFlavors.value.containsKey(flavor)
+        val isSelected = _selectedFlavors.value.containsKey(flavor)
+        android.util.Log.d("AddWhiskeyNoteViewModel", "🔍 플레이버 선택 상태 확인: ${flavor.name} = $isSelected")
+        return isSelected
     }
 
     fun getFlavorIntensity(flavor: Flavor): Int {
