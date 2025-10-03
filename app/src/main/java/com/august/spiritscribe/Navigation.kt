@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.LocalBar
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.LibraryBooks
 import androidx.compose.material.icons.filled.Science
@@ -51,7 +52,7 @@ import com.august.spiritscribe.ui.search.SearchScreen
 import com.august.spiritscribe.ui.whiskey.AddWhiskeyScreen
 import com.august.spiritscribe.ui.whiskey.AddWhiskeyNoteScreen
 import com.august.spiritscribe.ui.whiskey.WhiskeyDetailRoute
-import com.august.spiritscribe.ui.profile.ProfileScreen
+import com.august.spiritscribe.ui.social.WhiskeySocialScreen
 import com.august.spiritscribe.ui.feed.FeedScreen
 import com.august.spiritscribe.ui.evolution.EvolutionScreen
 import kotlinx.serialization.Serializable
@@ -116,9 +117,9 @@ sealed class Screen(val route: String) {
         override val label: String = "검색"
     }
     
-    object Profile : Screen("profile") {
-        override val icon: ImageVector = Icons.Filled.LibraryBooks
-        override val label: String = "노트"
+    object Social : Screen("social") {
+        override val icon: ImageVector = Icons.Filled.Group
+        override val label: String = "소셜"
     }
     
     object FlavorWheel : Screen("flavor_wheel") {
@@ -169,9 +170,9 @@ fun AppNavigation(modifier: Modifier = Modifier, navController: NavHostControlle
                     onWhiskeyClick = {}
                 )
             }
-            composable(Screen.Profile.route) {
-                ProfileScreen()
-            }
+                composable(Screen.Social.route) {
+                    WhiskeySocialScreen()
+                }
             composable(Screen.FlavorWheel.route) {
                 EvolutionScreen(
                     modifier = Modifier.fillMaxSize()
@@ -333,10 +334,6 @@ fun NavGraphBuilder.searchDestination() {
     }
 }
 
-fun NavGraphBuilder.profileDestination() {
-    composable<Profile> { ProfileRoute() }
-}
-
 // Route Composables
 @Composable
 fun FeedRoute() {
@@ -369,13 +366,6 @@ fun AddWhiskeyNoteRoute(
     )
 }
 
-@Composable
-fun ProfileRoute(modifier: Modifier = Modifier) {
-    ProfileScreen(
-        onEditProfile = { /* TODO: Implement edit profile navigation */ },
-        modifier = modifier
-    )
-}
 
 @Composable
 fun BottomNavigationBar(
@@ -387,12 +377,12 @@ fun BottomNavigationBar(
         modifier = modifier,
         containerColor = MaterialTheme.colorScheme.surface,
     ) {
-        val items = listOf(
-            Screen.Feed,
-            Screen.Search,
-            Screen.FlavorWheel,
-            Screen.Profile
-        )
+            val items = listOf(
+                Screen.Feed,
+                Screen.Search,
+                Screen.FlavorWheel,
+                Screen.Social
+            )
         
         items.forEach { screen ->
             val selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true
