@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Analytics
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
@@ -50,8 +51,7 @@ import com.august.spiritscribe.ui.whiskey.AddWhiskeyNoteScreen
 import com.august.spiritscribe.ui.whiskey.WhiskeyDetailRoute
 import com.august.spiritscribe.ui.profile.ProfileScreen
 import com.august.spiritscribe.ui.feed.FeedScreen
-import com.august.spiritscribe.ui.flavor.FlavorWheelScreen
-import com.august.spiritscribe.ui.flavor.FlavorWheelViewModel
+import com.august.spiritscribe.ui.evolution.EvolutionScreen
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -125,8 +125,8 @@ sealed class Screen(val route: String) {
     }
     
     object FlavorWheel : Screen("flavor_wheel") {
-        override val icon: ImageVector = Icons.Filled.LocalBar
-        override val label: String = "Flavor"
+        override val icon: ImageVector = Icons.Filled.Analytics
+        override val label: String = "테이스트 진화"
     }
 
     // 상세 화면들
@@ -178,11 +178,7 @@ fun AppNavigation(modifier: Modifier = Modifier, navController: NavHostControlle
                 ProfileScreen()
             }
             composable(Screen.FlavorWheel.route) {
-                val viewModel = hiltViewModel<FlavorWheelViewModel>()
-                val flavorProfile = viewModel.flavorProfile.collectAsState()
-                
-                FlavorWheelScreen(
-                    flavorProfile = flavorProfile.value,
+                EvolutionScreen(
                     modifier = Modifier.fillMaxSize()
                 )
             }

@@ -2,6 +2,10 @@ package com.august.spiritscribe.ui.flavor
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -10,7 +14,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.august.spiritscribe.domain.model.FlavorProfile
 import kotlin.math.PI
 import kotlin.math.cos
@@ -20,39 +26,143 @@ import kotlin.math.sin
 @Composable
 fun FlavorWheelScreen(
     modifier: Modifier = Modifier,
-    flavorProfile: FlavorProfile
+    viewModel: FlavorWheelViewModel = hiltViewModel()
 ) {
+    val flavorProfile by viewModel.flavorProfile.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val error by viewModel.error.collectAsState()
     var selectedCategory by remember { mutableStateOf<String?>(null) }
     
-    Column(
-        modifier = modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "Flavor Wheel",
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(16.dp)
-        )
-        
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .aspectRatio(1f)
-                .padding(16.dp)
-        ) {
-            FlavorWheel(
-                flavorProfile = flavorProfile,
-                selectedCategory = selectedCategory,
-                onCategorySelected = { selectedCategory = it }
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { 
+                    Text(
+                        "플레이버 휠",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                actions = {
+                    IconButton(
+                        onClick = { viewModel.refreshFlavorData() }
+                    ) {
+                        Icon(
+                            Icons.Default.Refresh,
+                            contentDescription = "새로고침"
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent
+                )
             )
         }
-        
-        // 선택된 카테고리 정보 표시
-        selectedCategory?.let { category ->
-            FlavorCategoryDetails(
-                category = category,
-                flavorProfile = flavorProfile
-            )
+    ) { paddingValues ->
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(horizontal = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // 에러 상태 표시
+            error?.let { errorMessage ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer
+                    )
+                ) {
+                    Text(
+                        text = errorMessage,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+            }
+            
+            when {
+                isLoading -> {
+                    // 로딩 상태
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            CircularProgressIndicator()
+                            Text(
+                                text = "플레이버 데이터를 분석 중입니다...",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+                
+                flavorProfile.aroma.isEmpty() && flavorProfile.palate.isEmpty() && flavorProfile.finish.isEmpty() -> {
+                    // 데이터가 없는 상태
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            Text(
+                                text = "🍃",
+                                style = MaterialTheme.typography.displayLarge
+                            )
+                            Text(
+                                text = "아직 플레이버 데이터가 없습니다",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                text = "위스키 노트를 추가하면 플레이버 휠에 데이터가 표시됩니다",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+                
+                else -> {
+                    // 데이터가 있는 상태 - 플레이버 휠 표시
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .aspectRatio(1f)
+                            .padding(16.dp)
+                    ) {
+                        FlavorWheel(
+                            flavorProfile = flavorProfile,
+                            selectedCategory = selectedCategory,
+                            onCategorySelected = { selectedCategory = it }
+                        )
+                    }
+                    
+                    // 선택된 카테고리 정보 표시
+                    selectedCategory?.let { category ->
+                        FlavorCategoryDetails(
+                            category = category,
+                            flavorProfile = flavorProfile,
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -64,49 +174,81 @@ private fun FlavorWheel(
     onCategorySelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Canvas(modifier = modifier.fillMaxSize()) {
-        val center = Offset(size.width / 2f, size.height / 2f)
-        val radius = minOf(size.width, size.height) / 2f
-        
-        // 외부 원 그리기
-        drawCircle(
-            color = Color.Gray,
-            radius = radius,
-            center = center,
-            style = Stroke(width = 2f)
-        )
-        
-        // 카테고리 섹션 그리기
-        val categories = FlavorProfile.AROMA_CATEGORIES + 
-                        FlavorProfile.PALATE_CATEGORIES
-        val sectionAngle = 2 * PI / categories.size
-        
-        categories.forEachIndexed { index, (category, _) ->
-            val startAngle = index * sectionAngle
-            val color = when {
-                category == selectedCategory -> Color(0xFFE57373) // 선택된 카테고리
-                index < FlavorProfile.AROMA_CATEGORIES.size -> Color(0xFFFFB74D) // 향
-                else -> Color(0xFF81C784) // 맛
+    Box(modifier = modifier.fillMaxSize()) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val center = Offset(size.width / 2f, size.height / 2f)
+            val radius = minOf(size.width, size.height) / 2f - 50f
+            
+            // 실제 데이터 기반 카테고리 생성
+            val categories = buildList {
+                if (flavorProfile.aroma.isNotEmpty()) {
+                    add("향 (Aroma)" to flavorProfile.aroma.size)
+                }
+                if (flavorProfile.palate.isNotEmpty()) {
+                    add("맛 (Palate)" to flavorProfile.palate.size)
+                }
+                if (flavorProfile.finish.isNotEmpty()) {
+                    add("피니시 (Finish)" to flavorProfile.finish.size)
+                }
             }
             
-            // 섹션 그리기
-            drawArc(
-                color = color,
-                startAngle = (startAngle * 180 / PI).toFloat(),
-                sweepAngle = (sectionAngle * 180 / PI).toFloat(),
-                useCenter = true,
-                topLeft = Offset(center.x - radius, center.y - radius),
-                size = Size(radius * 2, radius * 2)
+            if (categories.isNotEmpty()) {
+                val sectionAngle = 2 * PI / categories.size
+                
+                categories.forEachIndexed { index, (category, flavorCount) ->
+                    val startAngle = index * sectionAngle
+                    val color = when {
+                        category == selectedCategory -> Color(0xFFE57373)
+                        category.contains("향") -> Color(0xFFFFB74D)
+                        category.contains("맛") -> Color(0xFF81C784)
+                        else -> Color(0xFF64B5F6)
+                    }
+                    
+                    val intensityRadius = radius * (0.3f + (flavorCount.toFloat() / 20f).coerceIn(0.1f, 0.7f))
+                    
+                    drawArc(
+                        color = color.copy(alpha = 0.6f),
+                        startAngle = (startAngle * 180 / PI).toFloat(),
+                        sweepAngle = (sectionAngle * 180 / PI).toFloat(),
+                        useCenter = false,
+                        topLeft = Offset(center.x - intensityRadius, center.y - intensityRadius),
+                        size = Size(intensityRadius * 2, intensityRadius * 2),
+                        style = Stroke(width = 8f)
+                    )
+                }
+                
+                drawCircle(
+                    color = Color.White,
+                    radius = radius * 0.2f,
+                    center = center
+                )
+                
+                drawCircle(
+                    color = Color.Gray,
+                    radius = radius,
+                    center = center,
+                    style = Stroke(width = 2f)
+                )
+            }
+        }
+        
+        // 카테고리 라벨과 중앙 정보는 별도로 처리
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = "플레이버 휠",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
             )
-            
-            // 카테고리 이름 표시 위치 계산
-            val textAngle = startAngle + sectionAngle / 2
-            val textRadius = radius * 0.7f
-            val textX = center.x + cos(textAngle).toFloat() * textRadius
-            val textY = center.y + sin(textAngle).toFloat() * textRadius
-            
-            // 여기서는 텍스트를 그리지 않습니다 - Canvas에서 텍스트 그리기는 복잡하므로
-            // 실제 구현시에는 Box와 Text 컴포저블을 사용하는 것이 좋습니다
+            Text(
+                text = "총 ${flavorProfile.aroma.size + flavorProfile.palate.size + flavorProfile.finish.size}개",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
@@ -119,9 +261,11 @@ private fun FlavorCategoryDetails(
 ) {
     Card(
         modifier = modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            .fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
@@ -129,31 +273,47 @@ private fun FlavorCategoryDetails(
             Text(
                 text = category,
                 style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(bottom = 8.dp)
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(bottom = 12.dp)
             )
             
-            // 카테고리에 해당하는 향/맛 표시
+            // 카테고리에 해당하는 플레이버 표시
             val flavors = when {
-                FlavorProfile.AROMA_CATEGORIES.any { it.first == category } ->
-                    flavorProfile.aroma.filter { flavor ->
-                        FlavorProfile.AROMA_CATEGORIES
-                            .find { it.first == category }?.second
-                            ?.contains(flavor) == true
-                    }
-                FlavorProfile.PALATE_CATEGORIES.any { it.first == category } ->
-                    flavorProfile.palate.filter { flavor ->
-                        FlavorProfile.PALATE_CATEGORIES
-                            .find { it.first == category }?.second
-                            ?.contains(flavor) == true
-                    }
+                category.contains("향") -> flavorProfile.aroma
+                category.contains("맛") -> flavorProfile.palate
+                category.contains("피니시") -> flavorProfile.finish
                 else -> emptyList()
             }
             
-            flavors.forEach { flavor ->
+            if (flavors.isNotEmpty()) {
+                flavors.forEach { flavor ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "•",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
+                        Text(
+                            text = flavor,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+            } else {
                 Text(
-                    text = "• $flavor",
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(vertical = 4.dp)
+                    text = "이 카테고리에 해당하는 플레이버가 없습니다.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                    modifier = Modifier.padding(vertical = 8.dp)
                 )
             }
         }
