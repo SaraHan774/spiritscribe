@@ -2,164 +2,189 @@ package com.august.spiritscribe.ui.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.august.spiritscribe.domain.repository.WhiskeyRepository
+import com.august.spiritscribe.domain.model.Whiskey
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class SearchUiState(
-    val searchQuery: String = "",
-    val isSearchActive: Boolean = false,
-    val searchResults: List<WhiskeySearchResult> = emptyList(),
-    val searchSuggestions: List<String> = emptyList(),
-    val filters: SearchFilters = SearchFilters(),
-    val isLoading: Boolean = false,
-    val error: String? = null
-)
-
-data class SearchFilters(
-    val type: String = "All",
-    val rating: String = "All",
-    val minPrice: Double? = null,
-    val maxPrice: Double? = null
-)
-
-data class WhiskeySearchResult(
-    val id: String,
-    val name: String,
-    val description: String,
-    val type: String,
-    val rating: Double,
-    val price: Double?
-)
-
 @HiltViewModel
 class SearchViewModel @Inject constructor(
-    // TODO: Inject repositories
+    private val whiskeyRepository: WhiskeyRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(SearchUiState())
-    val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
+    private val _searchState = MutableStateFlow(SearchState())
+    val searchState: StateFlow<SearchState> = _searchState.asStateFlow()
 
     private val _searchQuery = MutableStateFlow("")
-    private val _filters = MutableStateFlow(SearchFilters())
-
-    @OptIn(FlowPreview::class)
-    private val _searchResults = _searchQuery
-        .debounce(300)
-        .combine(_filters) { query, filters ->
-            if (query.length >= 2) {
-                searchWhiskeys(query, filters)
-            } else {
-                emptyList()
-            }
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
+    private val _searchFilters = MutableStateFlow(SearchFilters())
 
     init {
+        // 실시간 검색을 위한 Flow 설정
+        setupSearchFlow()
+        loadSearchHistory()
+        loadPopularSearches()
+    }
+
+    @OptIn(FlowPreview::class)
+    private fun setupSearchFlow() {
         viewModelScope.launch {
             combine(
-                _searchQuery,
-                _searchResults,
-                _filters
-            ) { query, results, filters ->
-                SearchUiState(
-                    searchQuery = query,
-                    searchResults = results,
-                    filters = filters,
-                    searchSuggestions = generateSuggestions(query),
-                    isLoading = false
-                )
-            }.collect { state ->
-                _uiState.value = state
-            }
+                _searchQuery.debounce(300), // 300ms 디바운스
+                _searchFilters
+            ) { query, filters ->
+                if (query.isNotEmpty()) {
+                    viewModelScope.launch {
+                        performSearchInternal(query, filters)
+                    }
+                } else {
+                    _searchState.value = SearchState(
+                        query = query,
+                        filters = filters,
+                        recentSearches = _searchState.value.recentSearches,
+                        popularSearches = _searchState.value.popularSearches
+                    )
+                }
+            }.collect()
         }
     }
 
-    fun onSearchQueryChange(query: String) {
+    fun updateQuery(query: String) {
         _searchQuery.value = query
     }
 
-    fun onSearch(query: String) {
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
-            try {
-                val results = searchWhiskeys(query, _filters.value)
-                _uiState.value = _uiState.value.copy(
-                    searchResults = results,
-                    isLoading = false
-                )
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    error = "Search failed: ${e.message}",
-                    isLoading = false
-                )
+    fun updateFilters(filters: SearchFilters) {
+        _searchFilters.value = filters
+    }
+
+    fun updateSortOption(sortOption: SortOption) {
+        _searchState.value = _searchState.value.copy(sortOption = sortOption)
+        // 정렬이 변경되면 현재 결과를 다시 정렬
+        val currentResults = _searchState.value.results
+        if (currentResults.isNotEmpty()) {
+            val sortedResults = sortResults(currentResults, sortOption)
+            _searchState.value = _searchState.value.copy(results = sortedResults)
+        }
+    }
+
+    fun performSearch() {
+        val query = _searchQuery.value
+        val filters = _searchFilters.value
+        
+        if (query.isNotEmpty()) {
+            addToSearchHistory(query)
+            viewModelScope.launch {
+                performSearchInternal(query, filters)
             }
         }
     }
 
-    fun onSearchActiveChange(active: Boolean) {
-        _uiState.value = _uiState.value.copy(isSearchActive = active)
-    }
+    private suspend fun performSearchInternal(query: String, filters: SearchFilters) {
+        _searchState.value = _searchState.value.copy(isLoading = true, error = null)
 
-    fun onFilterChange(filters: SearchFilters) {
-        _filters.value = filters
-    }
+        try {
+            // 모든 위스키를 가져와서 클라이언트 사이드에서 필터링
+            val allWhiskies = whiskeyRepository.getAllWhiskies().first()
+            
+            val filteredResults = allWhiskies
+                .filter { whiskey ->
+                    // 텍스트 검색
+                    val matchesText = query.isEmpty() || 
+                        whiskey.name.contains(query, ignoreCase = true) ||
+                        whiskey.distillery.contains(query, ignoreCase = true) ||
+                        (whiskey.region?.contains(query, ignoreCase = true) ?: false)
+                    
+                    // 타입 필터
+                    val matchesType = filters.types.isEmpty() || 
+                        filters.types.any { type -> 
+                            whiskey.type.name.contains(type, ignoreCase = true) 
+                        }
+                    
+                    // 지역 필터
+                    val matchesRegion = filters.regions.isEmpty() || 
+                        filters.regions.any { region -> 
+                            whiskey.region?.contains(region, ignoreCase = true) ?: false
+                        }
+                    
+                    // 가격 필터
+                    val matchesPrice = whiskey.price?.let { price ->
+                        price >= filters.priceRange.first && price <= filters.priceRange.second
+                    } ?: true
+                    
+                    // 평점 필터
+                    val matchesRating = whiskey.rating?.let { rating ->
+                        rating >= filters.minRating
+                    } ?: true
+                    
+                    matchesText && matchesType && matchesRegion && matchesPrice && matchesRating
+                }
+                .let { results ->
+                    sortResults(results, _searchState.value.sortOption)
+                }
 
-    private suspend fun searchWhiskeys(query: String, filters: SearchFilters): List<WhiskeySearchResult> {
-        // TODO: Implement actual search using repository
-        // This is mock data for demonstration
-        return listOf(
-            WhiskeySearchResult(
-                id = "1",
-                name = "Macallan 12 Double Cask",
-                description = "Highland Single Malt Scotch Whisky",
-                type = "Single Malt",
-                rating = 4.5,
-                price = 89.99
-            ),
-            WhiskeySearchResult(
-                id = "2",
-                name = "Buffalo Trace",
-                description = "Kentucky Straight Bourbon Whiskey",
-                type = "Bourbon",
-                rating = 4.2,
-                price = 29.99
-            ),
-            WhiskeySearchResult(
-                id = "3",
-                name = "Lagavulin 16",
-                description = "Islay Single Malt Scotch Whisky",
-                type = "Single Malt",
-                rating = 4.8,
-                price = 109.99
+            _searchState.value = _searchState.value.copy(
+                query = query,
+                results = filteredResults,
+                filters = filters,
+                isLoading = false
             )
-        ).filter { whiskey ->
-            whiskey.name.contains(query, ignoreCase = true) &&
-            (filters.type == "All" || whiskey.type == filters.type) &&
-            (filters.rating == "All" || whiskey.rating >= filters.rating.first().toString().toDouble()) &&
-            (filters.minPrice == null || whiskey.price == null || whiskey.price >= filters.minPrice) &&
-            (filters.maxPrice == null || whiskey.price == null || whiskey.price <= filters.maxPrice)
+
+        } catch (e: Exception) {
+            _searchState.value = _searchState.value.copy(
+                isLoading = false,
+                error = "검색 중 오류가 발생했습니다: ${e.message}"
+            )
         }
     }
 
-    private fun generateSuggestions(query: String): List<String> {
-        // TODO: Implement actual suggestions using repository
-        return if (query.isNotEmpty()) {
-            listOf(
-                "$query Single Malt",
-                "$query Bourbon",
-                "$query Whiskey",
-                "Best $query",
-                "Top Rated $query"
-            )
-        } else {
-            emptyList()
+    private fun sortResults(results: List<Whiskey>, sortOption: SortOption): List<Whiskey> {
+        return when (sortOption) {
+            SortOption.NAME -> results.sortedBy { it.name }
+            SortOption.RATING -> results.sortedByDescending { it.rating ?: 0 }
+            SortOption.PRICE -> results.sortedBy { it.price ?: Double.MAX_VALUE }
+            SortOption.YEAR -> results.sortedByDescending { it.year ?: 0 }
         }
     }
-} 
+
+    fun clearSearch() {
+        _searchQuery.value = ""
+        _searchState.value = _searchState.value.copy(
+            query = "",
+            results = emptyList()
+        )
+    }
+
+    fun clearFilters() {
+        _searchFilters.value = SearchFilters()
+        _searchState.value = _searchState.value.copy(filters = SearchFilters())
+    }
+
+    fun clearSearchHistory() {
+        _searchState.value = _searchState.value.copy(recentSearches = emptyList())
+        // 실제로는 SharedPreferences나 데이터베이스에서도 삭제해야 함
+    }
+
+    private fun addToSearchHistory(query: String) {
+        val currentHistory = _searchState.value.recentSearches.toMutableList()
+        currentHistory.remove(query) // 중복 제거
+        currentHistory.add(0, query) // 맨 앞에 추가
+        val newHistory = currentHistory.take(10) // 최대 10개만 유지
+        
+        _searchState.value = _searchState.value.copy(recentSearches = newHistory)
+    }
+
+    private fun loadSearchHistory() {
+        // 실제로는 SharedPreferences나 데이터베이스에서 로드
+        val mockHistory = listOf("스코틀랜드", "버번", "일본 위스키")
+        _searchState.value = _searchState.value.copy(recentSearches = mockHistory)
+    }
+
+    private fun loadPopularSearches() {
+        // 실제로는 서버에서 인기 검색어를 가져오거나 로컬 통계를 기반으로 계산
+        val mockPopular = listOf("싱글몰트", "버번", "스코틀랜드", "일본 위스키", "블렌디드")
+        _searchState.value = _searchState.value.copy(popularSearches = mockPopular)
+    }
+}
