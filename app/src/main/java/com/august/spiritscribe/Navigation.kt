@@ -6,15 +6,11 @@ import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Create
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.LocalBar
 import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.NoteAlt
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Science
 import androidx.compose.material3.Icon
@@ -23,7 +19,6 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,7 +33,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import androidx.navigation.toRoute
 import com.august.spiritscribe.ui.note.NewThreadScreen
@@ -79,18 +73,6 @@ data object Feed
 @Serializable
 data object Search
 
-@Serializable
-data object Profile
-
-data class TopLevelRoute<T : Any>(val name: String, val route: T, val icon: ImageVector)
-
-val topLevelRoutes = listOf(
-    TopLevelRoute("Note", MyNoteList, Icons.Filled.Create),
-    TopLevelRoute("Feed", Feed, Icons.Filled.Menu),
-    TopLevelRoute("Search", Search, Icons.Filled.Search),
-    TopLevelRoute("Profile", Profile, Icons.Filled.AccountCircle)
-)
-
 // List of routes where bottom navigation should be hidden
 val hideBottomNavigationRoutes = listOf(
     AddWhiskey::class,
@@ -103,22 +85,23 @@ val hideBottomNavigationRoutes = listOf(
 sealed class Screen(val route: String) {
     open val label: String = ""
     open val icon: ImageVector = Icons.Default.LocalBar
-    object Feed : Screen("feed") {
-        override val icon: ImageVector = Icons.Filled.Home
-        override val label: String = "홈"
+
+    object Note : Screen("feed") {
+        override val icon: ImageVector = Icons.Filled.NoteAlt
+        override val label: String = "노트"
     }
-    
+
     object Search : Screen("search") {
         override val icon: ImageVector = Icons.Filled.Search
         override val label: String = "검색"
     }
-    
+
     object Social : Screen("social") {
         override val icon: ImageVector = Icons.Filled.Group
         override val label: String = "소셜"
     }
-    
-    object FlavorWheel : Screen("flavor_wheel") {
+
+    object Evolution : Screen("flavor_wheel") {
         override val icon: ImageVector = Icons.Filled.Science
         override val label: String = "진화"
     }
@@ -127,15 +110,15 @@ sealed class Screen(val route: String) {
     object WhiskeyDetail : Screen("whiskey_detail/{whiskeyId}") {
         fun createRoute(whiskeyId: String) = "whiskey_detail/$whiskeyId"
     }
-    
+
     object NoteDetail : Screen("note_detail/{noteId}") {
         fun createRoute(noteId: String) = "note_detail/$noteId"
     }
-    
+
     object EditNote : Screen("edit_note/{noteId}") {
         fun createRoute(noteId: String) = "edit_note/$noteId"
     }
-    
+
     object Settings : Screen("settings") {
         override val icon: ImageVector = Icons.Filled.Settings
         override val label: String = "Settings"
@@ -145,16 +128,19 @@ sealed class Screen(val route: String) {
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun AppNavigation(
-    modifier: Modifier = Modifier, 
+    modifier: Modifier = Modifier,
     navController: NavHostController
 ) {
     SharedTransitionLayout {
         NavHost(
             modifier = modifier,
             navController = navController,
-            startDestination = Screen.Feed.route
+            startDestination = Screen.Social.route
         ) {
-            composable(Screen.Feed.route) {
+            composable(Screen.Social.route) {
+                WhiskeySocialScreen()
+            }
+            composable(Screen.Note.route) {
                 FeedScreen(
                     onWhiskeyClick = { id ->
                         navController.navigate(Screen.WhiskeyDetail.createRoute(id))
@@ -169,10 +155,7 @@ fun AppNavigation(
                     onWhiskeyClick = {}
                 )
             }
-                composable(Screen.Social.route) {
-                    WhiskeySocialScreen()
-                }
-            composable(Screen.FlavorWheel.route) {
+            composable(Screen.Evolution.route) {
                 EvolutionScreen(
                     modifier = Modifier.fillMaxSize()
                 )
@@ -186,18 +169,20 @@ fun AppNavigation(
                 WhiskeyDetailRoute(
                     whiskeyId = backStackEntry.arguments?.getString("whiskeyId") ?: "",
                     onAddNote = {
-                        navController.navigateToAddWhiskeyNote(backStackEntry.arguments?.getString("whiskeyId") ?: "")
+                        navController.navigateToAddWhiskeyNote(
+                            backStackEntry.arguments?.getString("whiskeyId") ?: ""
+                        )
                     },
                     onNavigateBack = { navController.navigateUp() }
                 )
             }
-            
+
             composable<AddWhiskey> {
                 AddWhiskeyRoute(
                     onNavigateBack = { navController.navigateUp() }
                 )
             }
-            
+
             composable<AddWhiskeyNote> { navBackStackEntry: NavBackStackEntry ->
                 val addNote: AddWhiskeyNote = navBackStackEntry.toRoute()
                 AddWhiskeyNoteRoute(
@@ -306,10 +291,10 @@ fun NavGraphBuilder.noteDestination(
             modifier = Modifier.fillMaxSize()
         )
     }
-    composable<AddNote> { 
+    composable<AddNote> {
         AddWhiskeyRoute(
             onNavigateBack = onNavigateBack
-        ) 
+        )
     }
     composable<AddWhiskeyNote> { navBackStackEntry: NavBackStackEntry ->
         val addNote: AddWhiskeyNote = navBackStackEntry.toRoute()
@@ -376,16 +361,16 @@ fun BottomNavigationBar(
         modifier = modifier,
         containerColor = MaterialTheme.colorScheme.surface,
     ) {
-            val items = listOf(
-                Screen.Feed,
-                Screen.Search,
-                Screen.FlavorWheel,
-                Screen.Social
-            )
-        
+        val items = listOf(
+            Screen.Social,
+            Screen.Note,
+            Screen.Evolution,
+            Screen.Search,
+        )
+
         items.forEach { screen ->
             val selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true
-            
+
             NavigationBarItem(
                 icon = {
                     Icon(
