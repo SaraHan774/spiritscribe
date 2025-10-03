@@ -46,6 +46,7 @@ import com.august.spiritscribe.ui.note.NoteListRoute
 import com.august.spiritscribe.ui.search.SearchRoute
 import com.august.spiritscribe.ui.search.SearchScreen
 import com.august.spiritscribe.ui.whiskey.AddWhiskeyScreen
+import com.august.spiritscribe.ui.whiskey.AddWhiskeyNoteScreen
 import com.august.spiritscribe.ui.whiskey.WhiskeyDetailRoute
 import com.august.spiritscribe.ui.profile.ProfileScreen
 import com.august.spiritscribe.ui.feed.FeedScreen
@@ -58,6 +59,9 @@ data object AddWhiskey
 
 @Serializable
 data object AddNote
+
+@Serializable
+data class AddWhiskeyNote(val whiskeyId: String)
 
 @Serializable
 data class NoteDetail(val id: String)
@@ -92,6 +96,7 @@ val topLevelRoutes = listOf(
 val hideBottomNavigationRoutes = listOf(
     AddWhiskey::class,
     AddNote::class,
+    AddWhiskeyNote::class,
     NoteDetail::class,
     WhiskeyDetail::class
 )
@@ -191,8 +196,16 @@ fun AppNavigation(modifier: Modifier = Modifier, navController: NavHostControlle
                 WhiskeyDetailRoute(
                     whiskeyId = backStackEntry.arguments?.getString("whiskeyId") ?: "",
                     onAddNote = {
-                        // TODO: Navigate to add note screen for this whiskey
+                        navController.navigateToAddWhiskeyNote(backStackEntry.arguments?.getString("whiskeyId") ?: "")
                     },
+                    onNavigateBack = { navController.navigateUp() }
+                )
+            }
+            
+            composable<AddWhiskeyNote> { navBackStackEntry: NavBackStackEntry ->
+                val addNote: AddWhiskeyNote = navBackStackEntry.toRoute()
+                AddWhiskeyNoteRoute(
+                    whiskeyId = addNote.whiskeyId,
                     onNavigateBack = { navController.navigateUp() }
                 )
             }
@@ -242,6 +255,10 @@ fun NavController.navigateToAddNote() {
     navigate(route = AddNote)
 }
 
+fun NavController.navigateToAddWhiskeyNote(whiskeyId: String) {
+    navigate(route = AddWhiskeyNote(whiskeyId))
+}
+
 fun NavController.navigateToAddWhiskey() {
     navigate(route = AddWhiskey)
 }
@@ -261,6 +278,7 @@ fun NavGraphBuilder.noteDestination(
     navigateToWhiskeyDetail: (String) -> Unit,
     navigateToAddWhiskey: () -> Unit,
     navigateToAddNote: () -> Unit,
+    navigateToAddWhiskeyNote: (String) -> Unit,
     onNavigateBack: () -> Unit,
     sharedTransitionScope: SharedTransitionScope,
 ) {
@@ -286,12 +304,19 @@ fun NavGraphBuilder.noteDestination(
         navBackStackEntry.savedStateHandle["id"] = detail.id
         WhiskeyDetailRoute(
             whiskeyId = detail.id,
-            onAddNote = navigateToAddNote,
+            onAddNote = { navigateToAddWhiskeyNote(detail.id) },
             onNavigateBack = onNavigateBack,
             modifier = Modifier.fillMaxSize()
         )
     }
     composable<AddNote> { AddNoteRoute() }
+    composable<AddWhiskeyNote> { navBackStackEntry: NavBackStackEntry ->
+        val addNote: AddWhiskeyNote = navBackStackEntry.toRoute()
+        AddWhiskeyNoteRoute(
+            whiskeyId = addNote.whiskeyId,
+            onNavigateBack = onNavigateBack
+        )
+    }
     composable<AddWhiskey> {
         AddWhiskeyScreen(
             onNavigateBack = onNavigateBack
@@ -332,6 +357,17 @@ fun AddNoteRoute() {
     ) {
         NewThreadScreen()
     }
+}
+
+@Composable
+fun AddWhiskeyNoteRoute(
+    whiskeyId: String,
+    onNavigateBack: () -> Unit
+) {
+    AddWhiskeyNoteScreen(
+        whiskeyId = whiskeyId,
+        onNavigateBack = onNavigateBack
+    )
 }
 
 @Composable

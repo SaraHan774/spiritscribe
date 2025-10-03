@@ -55,6 +55,7 @@ fun MainScreen() {
                 NoteDetail::class -> destination.route?.contains("note_detail") == true
                 AddWhiskey::class -> destination.hasRoute<AddWhiskey>()
                 AddNote::class -> destination.hasRoute<AddNote>()
+                AddWhiskeyNote::class -> destination.hasRoute<AddWhiskeyNote>()
                 else -> false
             }
         }
