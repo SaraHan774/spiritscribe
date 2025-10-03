@@ -17,6 +17,8 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.LocalBar
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.LibraryBooks
+import androidx.compose.material.icons.filled.Science
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -106,27 +108,27 @@ sealed class Screen(val route: String) {
     open val icon: ImageVector = Icons.Default.LocalBar
     object Feed : Screen("feed") {
         override val icon: ImageVector = Icons.Filled.Home
-        override val label: String = "Feed"
+        override val label: String = "홈"
     }
     
     object Search : Screen("search") {
         override val icon: ImageVector = Icons.Filled.Search
-        override val label: String = "Search"
+        override val label: String = "검색"
     }
     
     object Create : Screen("create") {
-        override val icon: ImageVector = Icons.Filled.Add
-        override val label: String = "Add Whiskey"
+        override val icon: ImageVector = Icons.Filled.LocalBar
+        override val label: String = "추가"
     }
     
     object Profile : Screen("profile") {
-        override val icon: ImageVector = Icons.Filled.Person
-        override val label: String = "Profile"
+        override val icon: ImageVector = Icons.Filled.LibraryBooks
+        override val label: String = "노트"
     }
     
     object FlavorWheel : Screen("flavor_wheel") {
-        override val icon: ImageVector = Icons.Filled.Analytics
-        override val label: String = "테이스트 진화"
+        override val icon: ImageVector = Icons.Filled.Science
+        override val label: String = "진화"
     }
 
     // 상세 화면들
