@@ -98,7 +98,7 @@ print_info "Firebase App Distribution에 업로드 중..."
 
 firebase appdistribution:distribute "$APK_PATH" \
   --app "1:481518662543:android:e182106b97b4f572e191fa" \
-  --testers "sarahan774@gmail.com" \
+  --groups "testers" \
   --release-notes "$RELEASE_NOTES"
 
 if [ $? -eq 0 ]; then
