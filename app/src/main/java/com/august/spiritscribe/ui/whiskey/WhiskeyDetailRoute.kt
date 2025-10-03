@@ -38,6 +38,8 @@ import com.august.spiritscribe.domain.model.FinalRating
 import com.august.spiritscribe.domain.model.FlavorIntensity
 import com.august.spiritscribe.domain.model.Flavor
 import com.august.spiritscribe.domain.model.ColorMeter
+import com.august.spiritscribe.ui.components.CreativeRatingChip
+import com.august.spiritscribe.ui.components.convertFrom100Point
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -537,23 +539,11 @@ private fun WhiskeyNoteTimelineItem(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     
-                    // Rating badge
-                    Surface(
-                        shape = RoundedCornerShape(16.dp),
-                        color = getRatingColor(note.finalRating.overall)
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                        ) {
-                            Text(
-                                text = "${note.finalRating.overall}",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = Color.White,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
+                              // Creative Rating badge
+                              CreativeRatingChip(
+                                  rating = convertFrom100Point(note.finalRating.overall),
+                                  showPercentage = true
+                              )
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))

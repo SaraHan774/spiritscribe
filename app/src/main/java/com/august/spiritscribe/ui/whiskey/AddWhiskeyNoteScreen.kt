@@ -29,6 +29,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.august.spiritscribe.domain.model.Flavor
+import com.august.spiritscribe.ui.components.CreativeRatingChip
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -235,18 +236,10 @@ fun AddWhiskeyNoteScreen(
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         
-                        Surface(
-                            shape = RoundedCornerShape(16.dp),
-                            color = MaterialTheme.colorScheme.primaryContainer
-                        ) {
-                            Text(
-                                text = "${rating}/5",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
+                        CreativeRatingChip(
+                            rating = rating,
+                            showPercentage = true
+                        )
                     }
                     
                     Row(
