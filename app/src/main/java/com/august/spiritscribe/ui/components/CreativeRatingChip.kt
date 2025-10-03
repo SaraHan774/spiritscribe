@@ -24,13 +24,13 @@ fun CreativeRatingChip(
     val ratingDisplay = getRatingDisplay(rating)
     
     Surface(
-        modifier = modifier,
-        shape = RoundedCornerShape(16.dp),
+        modifier = modifier.widthIn(min = 40.dp, max = 80.dp), // 최소/최대 너비 제한
+        shape = RoundedCornerShape(12.dp),
         color = Color.Transparent
     ) {
         Box(
             modifier = Modifier
-                .clip(RoundedCornerShape(16.dp))
+                .clip(RoundedCornerShape(12.dp))
                 .background(
                     brush = Brush.verticalGradient(
                         colors = listOf(
@@ -39,38 +39,15 @@ fun CreativeRatingChip(
                         )
                     )
                 )
-                .padding(horizontal = 12.dp, vertical = 8.dp)
+                .padding(horizontal = 8.dp, vertical = 6.dp),
+            contentAlignment = Alignment.Center
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                // 이모지 별점
-                Text(
-                    text = ratingDisplay.stars,
-                    fontSize = 14.sp,
-                    textAlign = TextAlign.Center
-                )
-                
-                // 평점 텍스트
-                Text(
-                    text = ratingDisplay.text,
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = ratingDisplay.color,
-                    textAlign = TextAlign.Center
-                )
-                
-                // 퍼센트 표시 (선택적)
-                if (showPercentage) {
-                    Text(
-                        text = "${ratingDisplay.percentage}%",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = ratingDisplay.color.copy(alpha = 0.8f),
-                        textAlign = TextAlign.Center
-                    )
-                }
-            }
+            // 이모지 별점만 표시
+            Text(
+                text = ratingDisplay.stars,
+                fontSize = 14.sp,
+                textAlign = TextAlign.Center
+            )
         }
     }
 }
@@ -83,29 +60,22 @@ fun CompactRatingChip(
     val ratingDisplay = getRatingDisplay(rating)
     
     Surface(
-        modifier = modifier,
-        shape = RoundedCornerShape(12.dp),
+        modifier = modifier.widthIn(min = 30.dp, max = 60.dp), // 최소/최대 너비 제한
+        shape = RoundedCornerShape(10.dp),
         color = ratingDisplay.color.copy(alpha = 0.15f),
         border = androidx.compose.foundation.BorderStroke(
             width = 1.dp,
             color = ratingDisplay.color.copy(alpha = 0.3f)
         )
     ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        Box(
+            modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
+            contentAlignment = Alignment.Center
         ) {
+            // 이모지 별점만 표시
             Text(
                 text = ratingDisplay.stars,
                 fontSize = 12.sp
-            )
-            
-            Text(
-                text = ratingDisplay.text,
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.Medium,
-                color = ratingDisplay.color
             )
         }
     }

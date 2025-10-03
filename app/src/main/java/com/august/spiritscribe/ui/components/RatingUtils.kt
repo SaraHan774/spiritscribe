@@ -20,37 +20,37 @@ fun getRatingDisplay(rating: Int): RatingDisplay {
     return when (rating) {
         1 -> RatingDisplay(
             stars = "⭐",
-            text = "Basic",
+            text = "기본",
             color = Color(0xFFE57373), // Light Red
             percentage = 20
         )
         2 -> RatingDisplay(
             stars = "⭐⭐",
-            text = "Good",
+            text = "좋음",
             color = Color(0xFFFFB74D), // Orange
             percentage = 40
         )
         3 -> RatingDisplay(
             stars = "⭐⭐⭐",
-            text = "Very Good",
+            text = "매우좋음",
             color = Color(0xFF64B5F6), // Light Blue
             percentage = 60
         )
         4 -> RatingDisplay(
             stars = "⭐⭐⭐⭐",
-            text = "Excellent",
+            text = "훌륭함",
             color = Color(0xFF81C784), // Light Green
             percentage = 80
         )
         5 -> RatingDisplay(
             stars = "⭐⭐⭐⭐⭐",
-            text = "Outstanding",
+            text = "최고",
             color = Color(0xFF9575CD), // Purple
             percentage = 100
         )
         else -> RatingDisplay(
             stars = "⭐",
-            text = "Basic",
+            text = "기본",
             color = Color(0xFFE57373), // Light Red
             percentage = 20
         )
