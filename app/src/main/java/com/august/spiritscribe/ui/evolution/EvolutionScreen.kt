@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,6 +19,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.august.spiritscribe.domain.model.EvolutionStage
 import com.august.spiritscribe.ui.evolution.components.DNAVisualization
 import com.august.spiritscribe.ui.evolution.components.EvolutionAnalysisCard
+import com.august.spiritscribe.ui.evolution.components.EvolutionGuideDialog
 import kotlin.math.PI
 
 @OptIn(ExperimentalMaterial3Api::class)
