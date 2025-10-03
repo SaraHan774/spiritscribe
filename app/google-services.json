@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "481518662543",
+    "project_id": "spiritscribe",
+    "storage_bucket": "spiritscribe.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:481518662543:android:e182106b97b4f572e191fa",
+        "android_client_info": {
+          "package_name": "com.august.spiritscribe"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC3YxDt9OJvzc1To5B95WaBDV8bH7I40gc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
