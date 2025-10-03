@@ -208,6 +208,7 @@ private fun EvolutionContent(
     ) {
         Spacer(Modifier.height(40.dp))
 
+
         // DNA 시각화 섹션
         DNAVisualizationSection(
             evolution = evolution,
@@ -235,7 +236,7 @@ private fun DNAVisualizationSection(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         )
@@ -266,17 +267,31 @@ private fun DNAVisualizationSection(
                             .padding(start = 4.dp)
                             .size(20.dp)
                     )
-                }//
-                EvolutionStageBadge(stage = evolution.evolutionStage)
+                }
+                
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Refresh 아이콘
+                    Icon(
+                        Icons.Outlined.Refresh,
+                        contentDescription = "새로고침",
+                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        modifier = Modifier
+                            .clickable(onClick = onRefreshData)
+                            .padding(4.dp)
+                            .size(20.dp)
+                    )
+                    EvolutionStageBadge(stage = evolution.evolutionStage)
+                }
             }
 
             // DNA 시각화
             DNAVisualization(
                 dnaStrands = evolution.dnaStrands,
                 evolutionStage = evolution.evolutionStage,
-                modifier = Modifier
-                    .clickable(onClick = { onRefreshData() })
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             )
 
             // 통계 정보
