@@ -96,15 +96,15 @@ private fun AddWhiskeyNoteScreenContent(
                     )
                 )
         )
-        
+
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             containerColor = Color.Transparent,
             topBar = {
                 TopAppBar(
-                    title = { 
+                    title = {
                         Text(
-                            text = whiskey?.name ?: "노트 추가",
+                            text = "Note",
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold
                         )
@@ -119,7 +119,7 @@ private fun AddWhiskeyNoteScreenContent(
                     },
                     actions = {
                         IconButton(
-                        onClick = onSaveNote,
+                            onClick = onSaveNote,
                             enabled = !isSaving && noteText.isNotBlank()
                         ) {
                             if (isSaving) {
@@ -141,266 +141,267 @@ private fun AddWhiskeyNoteScreenContent(
                 )
             }
         ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 20.dp, vertical = 16.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
-        ) {
-            // 위스키 정보 카드 - 개선된 디자인
-            whiskey?.let { whiskey ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(100.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    )
-                ) {
-                    Box(
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(horizontal = 20.dp, vertical = 16.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+                // 위스키 정보 카드 - 개선된 디자인
+                whiskey?.let { whiskey ->
+                    Card(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .background(
-                                brush = Brush.linearGradient(
-                                    colors = listOf(
-                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                                        MaterialTheme.colorScheme.secondary.copy(alpha = 0.05f)
-                                    )
-                                )
-                            )
+                            .fillMaxWidth()
+                            .height(100.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface
+                        )
                     ) {
-                        Column(
+                        Box(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(16.dp),
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Text(
-                                text = whiskey.name,
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                lineHeight = 24.sp
-                            )
-                            
-                            Spacer(modifier = Modifier.height(6.dp))
-                            
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Surface(
-                                    shape = RoundedCornerShape(12.dp),
-                                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
-                                ) {
-                                    Text(
-                                        text = whiskey.distillery,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                        fontWeight = FontWeight.Medium
+                                .background(
+                                    brush = Brush.linearGradient(
+                                        colors = listOf(
+                                            MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                                            MaterialTheme.colorScheme.secondary.copy(alpha = 0.05f)
+                                        )
                                     )
-                                }
-                                
-                                whiskey.age?.let { age ->
+                                )
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(16.dp),
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    text = whiskey.name,
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    lineHeight = 24.sp
+                                )
+
+                                Spacer(modifier = Modifier.height(6.dp))
+
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
                                     Surface(
                                         shape = RoundedCornerShape(12.dp),
-                                        color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)
+                                        color = MaterialTheme.colorScheme.primaryContainer.copy(
+                                            alpha = 0.5f
+                                        )
                                     ) {
                                         Text(
-                                            text = "${age}년",
+                                            text = whiskey.distillery,
                                             style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                            modifier = Modifier.padding(
+                                                horizontal = 8.dp,
+                                                vertical = 4.dp
+                                            ),
+                                            fontWeight = FontWeight.Medium
+                                        )
+                                    }
+
+                                    whiskey.age?.let { age ->
+                                        Surface(
+                                            shape = RoundedCornerShape(12.dp),
+                                            color = MaterialTheme.colorScheme.secondaryContainer.copy(
+                                                alpha = 0.5f
+                                            )
+                                        ) {
+                                            Text(
+                                                text = "${age}년",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                                modifier = Modifier.padding(
+                                                    horizontal = 8.dp,
+                                                    vertical = 4.dp
+                                                ),
+                                                fontWeight = FontWeight.Medium
+                                            )
+                                        }
+                                    }
+
+                                    Surface(
+                                        shape = RoundedCornerShape(12.dp),
+                                        color = MaterialTheme.colorScheme.tertiaryContainer.copy(
+                                            alpha = 0.5f
+                                        )
+                                    ) {
+                                        Text(
+                                            text = "${whiskey.abv}% ABV",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onTertiaryContainer,
+                                            modifier = Modifier.padding(
+                                                horizontal = 8.dp,
+                                                vertical = 4.dp
+                                            ),
                                             fontWeight = FontWeight.Medium
                                         )
                                     }
                                 }
-                                
-                                Surface(
-                                    shape = RoundedCornerShape(12.dp),
-                                    color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f)
+                            }
+                        }
+                    }
+                }
+
+                // 평점 입력 - 개선된 디자인
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(18.dp),
+                        verticalArrangement = Arrangement.spacedBy(14.dp)
+                    ) {
+                        CreativeRatingChip(
+                            rating = rating,
+                            showPercentage = true
+                        )
+
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            repeat(5) { index ->
+                                val isSelected = index < rating
+                                IconButton(
+                                    onClick = { onUpdateRating(index + 1) },
+                                    modifier = Modifier.size(24.dp)
                                 ) {
-                                    Text(
-                                        text = "${whiskey.abv}% ABV",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onTertiaryContainer,
-                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                        fontWeight = FontWeight.Medium
+                                    Icon(
+                                        imageVector = if (isSelected) {
+                                            Icons.Default.Star
+                                        } else {
+                                            Icons.Default.StarBorder
+                                        },
+                                        contentDescription = null,
+                                        tint = if (isSelected) {
+                                            MaterialTheme.colorScheme.primary
+                                        } else {
+                                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
+                                        },
+                                        modifier = Modifier.size(36.dp)
                                     )
                                 }
                             }
                         }
                     }
                 }
-            }
 
-            // 평점 입력 - 개선된 디자인
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            ) {
-                Column(
-                    modifier = Modifier.padding(18.dp),
-                    verticalArrangement = Arrangement.spacedBy(14.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "⭐ 전체 평점",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        
-                        CreativeRatingChip(
-                            rating = rating,
-                            showPercentage = true
-                        )
-                    }
-                    
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        repeat(5) { index ->
-                            val isSelected = index < rating
-                            IconButton(
-                                onClick = { onUpdateRating(index + 1) },
-                                modifier = Modifier.size(48.dp)
-                            ) {
-                                Icon(
-                                    imageVector = if (isSelected) {
-                                        Icons.Default.Star
-                                    } else {
-                                        Icons.Default.StarBorder
-                                    },
-                                    contentDescription = null,
-                                    tint = if (isSelected) {
-                                        MaterialTheme.colorScheme.primary
-                                    } else {
-                                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
-                                    },
-                                    modifier = Modifier.size(36.dp)
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-
-            // 노트 입력 - 개선된 디자인
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            ) {
-                Column(
-                    modifier = Modifier.padding(18.dp),
-                    verticalArrangement = Arrangement.spacedBy(14.dp)
-                ) {
-                    Text(
-                        text = "📝 테이스팅 노트",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
+                // 플레이버 선택 - 인터랙티브 디자인
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
                     )
-                    
-                    OutlinedTextField(
-                        value = noteText,
-                        onValueChange = onUpdateNoteText,
-                        placeholder = { 
+                ) {
+                    Column(
+                        modifier = Modifier.padding(18.dp),
+                        verticalArrangement = Arrangement.spacedBy(14.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             Text(
-                                "위스키에 대한 느낌, 맛, 향 등을 자유롭게 적어보세요...",
-                                style = MaterialTheme.typography.bodyMedium
+                                text = "🌿 느낀 플레이버",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
                             )
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(160.dp),
-                        maxLines = 8,
-                        shape = RoundedCornerShape(16.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = MaterialTheme.colorScheme.primary,
-                            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
-                        )
-                    )
-                }
-            }
 
-            // 플레이버 선택 - 인터랙티브 디자인
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            ) {
-                Column(
-                    modifier = Modifier.padding(18.dp),
-                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                            if (selectedFlavors.isNotEmpty()) {
+                                Surface(
+                                    shape = RoundedCornerShape(12.dp),
+                                    color = MaterialTheme.colorScheme.secondaryContainer
+                                ) {
+                                    Text(
+                                        text = "${selectedFlavors.size}개 선택",
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                        modifier = Modifier.padding(
+                                            horizontal = 8.dp,
+                                            vertical = 4.dp
+                                        ),
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                }
+                            }
+                        }
+
+                        Text(
+                            text = "위스키에서 느낀 플레이버를 선택하고 강도를 조절해보세요.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+
+                        // 플레이버 선택 그리드
+                        FlavorSelectionGrid(
+                            selectedFlavors = selectedFlavors,
+                            onFlavorToggle = onToggleFlavor,
+                            onIntensityChange = onUpdateFlavorIntensity,
+                            isFlavorSelected = { flavor -> selectedFlavors.containsKey(flavor) },
+                            getFlavorIntensity = { flavor -> selectedFlavors[flavor] ?: 3 }
+                        )
+                    }
+                }
+
+                // 노트 입력 - 개선된 디자인
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    )
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                    Column(
+                        modifier = Modifier.padding(18.dp),
+                        verticalArrangement = Arrangement.spacedBy(14.dp)
                     ) {
                         Text(
-                            text = "🌿 느낀 플레이버",
+                            text = "📝 테이스팅 노트",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
                         )
-                        
-                        if (selectedFlavors.isNotEmpty()) {
-                            Surface(
-                                shape = RoundedCornerShape(12.dp),
-                                color = MaterialTheme.colorScheme.secondaryContainer
-                            ) {
+
+                        OutlinedTextField(
+                            value = noteText,
+                            onValueChange = onUpdateNoteText,
+                            placeholder = {
                                 Text(
-                                    text = "${selectedFlavors.size}개 선택",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                    fontWeight = FontWeight.Medium
+                                    "위스키에 대한 느낌, 맛, 향 등을 자유롭게 적어보세요...",
+                                    style = MaterialTheme.typography.bodyMedium
                                 )
-                            }
-                        }
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(160.dp),
+                            maxLines = 8,
+                            shape = RoundedCornerShape(16.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+                            )
+                        )
                     }
-                    
-                    Text(
-                        text = "위스키에서 느낀 플레이버를 선택하고 강도를 조절해보세요.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    
-                    // 플레이버 선택 그리드
-                    FlavorSelectionGrid(
-                        selectedFlavors = selectedFlavors,
-                        onFlavorToggle = onToggleFlavor,
-                        onIntensityChange = onUpdateFlavorIntensity,
-                        isFlavorSelected = { flavor -> selectedFlavors.containsKey(flavor) },
-                        getFlavorIntensity = { flavor -> selectedFlavors[flavor] ?: 3 }
-                    )
                 }
             }
         }
-    }
     }
 }
 
@@ -422,23 +423,29 @@ private fun FlavorSelectionGrid(
         Flavor.values().forEach { flavor ->
             val isSelected = isFlavorSelected(flavor)
             val intensity = if (isSelected) getFlavorIntensity(flavor) else 3
-            
+
             // 상태 변화 로그
             LaunchedEffect(isSelected, intensity) {
-                android.util.Log.d("FlavorSelectionGrid", "📋 FlavorSelectionGrid: ${flavor.name}, isSelected=$isSelected, intensity=$intensity")
+                android.util.Log.d(
+                    "FlavorSelectionGrid",
+                    "📋 FlavorSelectionGrid: ${flavor.name}, isSelected=$isSelected, intensity=$intensity"
+                )
             }
-            
+
             FlavorChip(
                 flavor = flavor,
                 isSelected = isSelected,
                 intensity = intensity,
-                onToggle = { 
+                onToggle = {
                     android.util.Log.d("FlavorSelectionGrid", "👆 FlavorChip 터치됨: ${flavor.name}")
-                    onFlavorToggle(flavor) 
+                    onFlavorToggle(flavor)
                 },
-                onIntensityChange = { intensity -> 
-                    android.util.Log.d("FlavorSelectionGrid", "🎯 강도 변경 요청: ${flavor.name} -> $intensity")
-                    onIntensityChange(flavor, intensity) 
+                onIntensityChange = { intensity ->
+                    android.util.Log.d(
+                        "FlavorSelectionGrid",
+                        "🎯 강도 변경 요청: ${flavor.name} -> $intensity"
+                    )
+                    onIntensityChange(flavor, intensity)
                 }
             )
         }
@@ -455,7 +462,10 @@ private fun FlavorChip(
 ) {
     // 상태 변화를 로그로 추적
     LaunchedEffect(isSelected, intensity) {
-        android.util.Log.d("FlavorChip", "🎨 FlavorChip 리컴포지션: ${flavor.name}, isSelected=$isSelected, intensity=$intensity")
+        android.util.Log.d(
+            "FlavorChip",
+            "🎨 FlavorChip 리컴포지션: ${flavor.name}, isSelected=$isSelected, intensity=$intensity"
+        )
     }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -502,7 +512,7 @@ private fun FlavorChip(
                 )
             }
         }
-        
+
         // 강도 조절 (선택된 경우에만)
         if (isSelected) {
             Column(
@@ -515,7 +525,7 @@ private fun FlavorChip(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 9.sp
                 )
-                
+
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalAlignment = Alignment.CenterVertically
