@@ -184,74 +184,42 @@ private fun NoteDetailContent(
                         .padding(24.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    // Title and Basic Info
+                    // Simplified Title and Basic Info
                     Column(
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Text(
                             text = note.name,
-                            style = MaterialTheme.typography.headlineMedium,
+                            style = MaterialTheme.typography.headlineSmall, // Reduced size
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         
-                        // Metadata Row
+                        // Compact Metadata Row
                         Row(
-                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            note.year?.let { year ->
-                                Surface(
-                                    shape = RoundedCornerShape(16.dp),
-                                    color = MaterialTheme.colorScheme.secondaryContainer,
-                                    modifier = Modifier.height(32.dp)
-                                ) {
-                                    Box(
-                                        contentAlignment = Alignment.Center,
-                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                                    ) {
-                                        Text(
-                                            text = "Year: $year",
-                                            style = MaterialTheme.typography.labelMedium,
-                                            color = MaterialTheme.colorScheme.onSecondaryContainer
-                                        )
-                                    }
-                                }
-                            }
+                            Text(
+                                text = note.distillery,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            
+                            // Compact info chips
                             note.age?.let { age ->
-                                Surface(
-                                    shape = RoundedCornerShape(16.dp),
-                                    color = MaterialTheme.colorScheme.secondaryContainer,
-                                    modifier = Modifier.height(32.dp)
-                                ) {
-                                    Box(
-                                        contentAlignment = Alignment.Center,
-                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                                    ) {
-                                        Text(
-                                            text = "Age: ${age}년",
-                                            style = MaterialTheme.typography.labelMedium,
-                                            color = MaterialTheme.colorScheme.onSecondaryContainer
-                                        )
-                                    }
-                                }
+                                Text(
+                                    text = "${age}년",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
                             }
-                            Surface(
-                                shape = RoundedCornerShape(16.dp),
-                                color = MaterialTheme.colorScheme.secondaryContainer,
-                                modifier = Modifier.height(32.dp)
-                            ) {
-                                Box(
-                                    contentAlignment = Alignment.Center,
-                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                                ) {
-                                    Text(
-                                        text = "ABV: ${note.abv}%",
-                                        style = MaterialTheme.typography.labelMedium,
-                                        color = MaterialTheme.colorScheme.onSecondaryContainer
-                                    )
-                                }
-                            }
+                            
+                            Text(
+                                text = "${note.abv}% ABV",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
                         }
                     }
 

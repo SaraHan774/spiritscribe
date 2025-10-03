@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -141,38 +142,41 @@ fun WhiskeyDetailRoute(
                 }
             }
 
-            // Timeline Header
+            // Twitter-style Timeline Header
             stickyHeader {
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
-                    shadowElevation = 2.dp
+                    color = MaterialTheme.colorScheme.background,
+                    border = BorderStroke(
+                        width = 0.5.dp,
+                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                    )
                 ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 12.dp), // Reduced padding
+                            .padding(horizontal = 20.dp, vertical = 16.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Timeline,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
                         Text(
                             text = "테이스팅 여정",
-                            style = MaterialTheme.typography.titleLarge,
+                            style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Spacer(modifier = Modifier.weight(1f))
-                        Text(
-                            text = "${notes.size}개 노트",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                        ) {
+                            Text(
+                                text = "${notes.size}",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
                     }
                 }
             }
@@ -195,7 +199,7 @@ fun WhiskeyDetailRoute(
                         isLast = index == notes.lastIndex,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 6.dp) // Reduced padding
+                            .padding(horizontal = 0.dp, vertical = 0.dp) // No padding for Twitter-style
                             .animateItem(
                                 placementSpec = spring(
                                     dampingRatio = Spring.DampingRatioMediumBouncy,
@@ -462,185 +466,118 @@ private fun WhiskeyNoteTimelineItem(
     modifier: Modifier = Modifier
 ) {
     Row(modifier = modifier) {
-        // Enhanced Timeline thread with connection lines
+        // Natural history timeline line
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.width(48.dp) // Increased width for better thread visibility
+            modifier = Modifier.width(24.dp) // Reduced width for cleaner look
         ) {
-            // Top connection line (hidden for first item)
+            // Top connecting line (hidden for first item)
             if (!isFirst) {
                 Box(
                     modifier = Modifier
-                        .width(3.dp) // Slightly thicker line
-                        .height(24.dp) // Extended height for better connection
-                        .background(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(
-                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
-                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
-                                )
-                            )
-                        )
+                        .width(2.dp)
+                        .height(32.dp)
+                        .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
                 )
             } else {
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(32.dp))
             }
             
-            // Main timeline dot with enhanced styling
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.size(20.dp) // Larger dot for better visibility
-            ) {
-                // Outer ring (shadow effect)
-                Surface(
-                    shape = CircleShape,
-                    color = getRatingColor(note.finalRating.overall).copy(alpha = 0.3f),
-                    modifier = Modifier.size(20.dp)
-                ) {}
-                
-                // Inner dot
-                Surface(
-                    shape = CircleShape,
-                    color = getRatingColor(note.finalRating.overall),
-                    modifier = Modifier.size(14.dp),
-                    shadowElevation = 2.dp
-                ) {
-                    // Optional inner highlight
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(
-                                brush = Brush.radialGradient(
-                                    colors = listOf(
-                                        Color.White.copy(alpha = 0.3f),
-                                        Color.Transparent
-                                    ),
-                                    radius = 10f
-                                ),
-                                shape = CircleShape
-                            )
-                    )
-                }
-            }
+            // Timeline marker - simple and clean
+            Surface(
+                shape = CircleShape,
+                color = getRatingColor(note.finalRating.overall),
+                modifier = Modifier.size(12.dp)
+            ) {}
             
-            // Bottom connection line (hidden for last item)
+            // Bottom connecting line (hidden for last item)
             if (!isLast) {
                 Box(
                     modifier = Modifier
-                        .width(3.dp) // Slightly thicker line
-                        .height(24.dp) // Extended height for better connection
-                        .background(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(
-                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
-                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
-                                )
-                            )
-                        )
+                        .width(2.dp)
+                        .height(32.dp)
+                        .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
                 )
             } else {
-                // Fade out line for the last item to show completion
-                Box(
-                    modifier = Modifier
-                        .width(3.dp)
-                        .height(24.dp)
-                        .background(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(
-                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
-                                    Color.Transparent
-                                )
-                            )
-                        )
-                )
+                Spacer(modifier = Modifier.height(32.dp))
             }
         }
         
         Spacer(modifier = Modifier.width(12.dp)) // Reduced spacing due to wider timeline
         
-        // Note card with connection indicator
+        // Twitter-style timeline card
         Box(modifier = Modifier.fillMaxWidth()) {
-            // Subtle connection line from timeline to card
-            if (!isFirst && !isLast) {
-                Box(
-                    modifier = Modifier
-                        .width(24.dp)
-                        .height(2.dp)
-                        .offset(x = (-36).dp, y = 28.dp) // Position to connect timeline to card
-                        .background(
-                            brush = Brush.horizontalGradient(
-                                colors = listOf(
-                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
-                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
-                                    Color.Transparent
-                                )
-                            )
-                        )
-                )
-            }
-            
-            ElevatedCard(
+            // Twitter-style card with minimal border
+            Surface(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
-                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
-                colors = CardDefaults.elevatedCardColors(
-                    containerColor = if (isFirst) {
-                        // Highlight first note with subtle accent
-                        MaterialTheme.colorScheme.surface.copy(alpha = 0.98f)
-                    } else {
-                        MaterialTheme.colorScheme.surface
-                    }
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.surface,
+                border = BorderStroke(
+                    width = 0.5.dp,
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
                 )
             ) {
             Column(
-                modifier = Modifier.padding(20.dp)
+                modifier = Modifier.padding(16.dp)
             ) {
-                // Header with date and rating
+                // Twitter-style header with user info and timestamp
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.Top
                 ) {
                     Row(
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f)
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.CalendarToday,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = DateTimeFormatter.ofPattern("yyyy년 M월 d일").format(
-                                LocalDateTime.ofInstant(
-                                    Instant.ofEpochMilli(note.createdAt),
-                                    ZoneId.systemDefault()
+                        // Avatar placeholder (could be user avatar in real app)
+                        Surface(
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text(
+                                    text = "👤",
+                                    style = MaterialTheme.typography.labelLarge
                                 )
-                            ),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                            }
+                        }
+                        
+                        Spacer(modifier = Modifier.width(12.dp))
+                        
+                        Column {
+                            Text(
+                                text = "테이스터",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = DateTimeFormatter.ofPattern("M월 d일").format(
+                                    LocalDateTime.ofInstant(
+                                        Instant.ofEpochMilli(note.createdAt),
+                                        ZoneId.systemDefault()
+                                    )
+                                ),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                     
+                    // Rating badge
                     Surface(
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(16.dp),
                         color = getRatingColor(note.finalRating.overall)
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Star,
-                                contentDescription = null,
-                                modifier = Modifier.size(14.dp),
-                                tint = Color.White
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
                             Text(
                                 text = "${note.finalRating.overall}",
-                                style = MaterialTheme.typography.labelLarge,
+                                style = MaterialTheme.typography.labelMedium,
                                 color = Color.White,
                                 fontWeight = FontWeight.Bold
                             )
@@ -648,72 +585,36 @@ private fun WhiskeyNoteTimelineItem(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
-                // Note content
+                // Twitter-style note content
                 Text(
                     text = note.additionalNotes,
-                    style = MaterialTheme.typography.bodyLarge,
-                    lineHeight = 24.sp,
+                    style = MaterialTheme.typography.bodyMedium,
+                    lineHeight = 20.sp,
                     color = MaterialTheme.colorScheme.onSurface
                 )
 
-                // Tasting scores section
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                Text(
-                    text = "테이스팅 점수",
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    ScoreChip(
-                        label = "외관",
-                        score = note.finalRating.appearance,
-                        modifier = Modifier.weight(1f)
-                    )
-                    ScoreChip(
-                        label = "향",
-                        score = note.finalRating.nose,
-                        modifier = Modifier.weight(1f)
-                    )
-                    ScoreChip(
-                        label = "맛",
-                        score = note.finalRating.taste,
-                        modifier = Modifier.weight(1f)
-                    )
-                    ScoreChip(
-                        label = "여운",
-                        score = note.finalRating.finish,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-
-                // Flavor tags
+                // Compact flavor tags (Twitter-style)
                 if (note.flavors.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    
-                    Text(
-                        text = "플레이버 프로필",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
+                    Spacer(modifier = Modifier.height(12.dp))
                     
                     FlowRow(
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
-                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        note.flavors.forEach { flavor ->
-                            FlavorChip(
-                                flavor = flavor.flavor.displayName,
-                                intensity = flavor.intensity
-                            )
+                        note.flavors.take(4).forEach { flavor -> // Limit to 4 flavors for clean look
+                            Surface(
+                                shape = RoundedCornerShape(12.dp),
+                                color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f)
+                            ) {
+                                Text(
+                                    text = flavor.flavor.displayName,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                )
+                            }
                         }
                     }
                 }
@@ -1229,7 +1130,7 @@ private fun WhiskeyDetailRouteContent(
                         isLast = index == notes.lastIndex,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 6.dp)
+                            .padding(horizontal = 0.dp, vertical = 0.dp)
                             .animateItem(
                                 placementSpec = spring(
                                     dampingRatio = Spring.DampingRatioMediumBouncy,
