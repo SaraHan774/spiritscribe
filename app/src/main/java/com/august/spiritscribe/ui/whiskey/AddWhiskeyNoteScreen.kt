@@ -29,6 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.tooling.preview.Preview
 import com.august.spiritscribe.domain.model.Flavor
 import com.august.spiritscribe.ui.components.CreativeRatingChip
 
@@ -50,6 +51,36 @@ fun AddWhiskeyNoteScreen(
     val rating by viewModel.rating.collectAsState()
     val selectedFlavors by viewModel.selectedFlavors.collectAsState()
 
+    AddWhiskeyNoteScreenContent(
+        whiskey = whiskey,
+        isSaving = isSaving,
+        noteText = noteText,
+        rating = rating,
+        selectedFlavors = selectedFlavors,
+        onNavigateBack = onNavigateBack,
+        onUpdateNoteText = viewModel::updateNoteText,
+        onUpdateRating = viewModel::updateRating,
+        onToggleFlavor = viewModel::toggleFlavor,
+        onUpdateFlavorIntensity = viewModel::updateFlavorIntensity,
+        onSaveNote = { viewModel.saveNote { onNavigateBack() } }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AddWhiskeyNoteScreenContent(
+    whiskey: com.august.spiritscribe.domain.model.Whiskey?,
+    isSaving: Boolean,
+    noteText: String,
+    rating: Int,
+    selectedFlavors: Map<Flavor, Int>,
+    onNavigateBack: () -> Unit,
+    onUpdateNoteText: (String) -> Unit,
+    onUpdateRating: (Int) -> Unit,
+    onToggleFlavor: (Flavor) -> Unit,
+    onUpdateFlavorIntensity: (Flavor, Int) -> Unit,
+    onSaveNote: () -> Unit
+) {
     Box(modifier = Modifier.fillMaxSize()) {
         // 배경 그라데이션
         Box(
@@ -88,11 +119,7 @@ fun AddWhiskeyNoteScreen(
                     },
                     actions = {
                         IconButton(
-                            onClick = {
-                                viewModel.saveNote {
-                                    onNavigateBack()
-                                }
-                            },
+                        onClick = onSaveNote,
                             enabled = !isSaving && noteText.isNotBlank()
                         ) {
                             if (isSaving) {
@@ -250,7 +277,7 @@ fun AddWhiskeyNoteScreen(
                         repeat(5) { index ->
                             val isSelected = index < rating
                             IconButton(
-                                onClick = { viewModel.updateRating(index + 1) },
+                                onClick = { onUpdateRating(index + 1) },
                                 modifier = Modifier.size(48.dp)
                             ) {
                                 Icon(
@@ -295,7 +322,7 @@ fun AddWhiskeyNoteScreen(
                     
                     OutlinedTextField(
                         value = noteText,
-                        onValueChange = viewModel::updateNoteText,
+                        onValueChange = onUpdateNoteText,
                         placeholder = { 
                             Text(
                                 "위스키에 대한 느낌, 맛, 향 등을 자유롭게 적어보세요...",
@@ -365,8 +392,8 @@ fun AddWhiskeyNoteScreen(
                     // 플레이버 선택 그리드
                     FlavorSelectionGrid(
                         selectedFlavors = selectedFlavors,
-                        onFlavorToggle = viewModel::toggleFlavor,
-                        onIntensityChange = viewModel::updateFlavorIntensity,
+                        onFlavorToggle = onToggleFlavor,
+                        onIntensityChange = onUpdateFlavorIntensity,
                         isFlavorSelected = { flavor -> selectedFlavors.containsKey(flavor) },
                         getFlavorIntensity = { flavor -> selectedFlavors[flavor] ?: 3 }
                     )
@@ -524,5 +551,111 @@ private fun FlavorChip(
                 }
             }
         }
+    }
+}
+
+// Mock 데이터 생성
+private val mockWhiskey = com.august.spiritscribe.domain.model.Whiskey(
+    id = "1",
+    name = "Macallan 18년",
+    distillery = "Macallan",
+    type = com.august.spiritscribe.domain.model.WhiskeyType.SINGLEMALT,
+    region = "스코틀랜드",
+    abv = 43.0,
+    age = 18,
+    year = 2020,
+    price = 150000.0,
+    description = "매끄럽고 풍부한 맛의 싱글 몰트 위스키",
+    rating = 92,
+    imageUris = emptyList()
+)
+
+// Preview 함수들
+@Preview(name = "노트 추가 화면 - 기본", showBackground = true)
+@Composable
+private fun AddWhiskeyNoteScreenPreview() {
+    MaterialTheme {
+        AddWhiskeyNoteScreenContent(
+            whiskey = mockWhiskey,
+            isSaving = false,
+            noteText = "",
+            rating = 0,
+            selectedFlavors = emptyMap(),
+            onNavigateBack = {},
+            onUpdateNoteText = {},
+            onUpdateRating = {},
+            onToggleFlavor = {},
+            onUpdateFlavorIntensity = { _, _ -> },
+            onSaveNote = {}
+        )
+    }
+}
+
+@Preview(name = "노트 추가 화면 - 입력된 상태", showBackground = true)
+@Composable
+private fun AddWhiskeyNoteScreenWithDataPreview() {
+    MaterialTheme {
+        AddWhiskeyNoteScreenContent(
+            whiskey = mockWhiskey,
+            isSaving = false,
+            noteText = "매끄럽고 달콤한 바닐라와 꿀의 향이 느껴집니다. 오크의 풍미가 조화롭게 어우러져 있습니다.",
+            rating = 4,
+            selectedFlavors = mapOf(
+                Flavor.VANILLA to 4,
+                Flavor.HONEY to 3,
+                Flavor.WOOD to 2
+            ),
+            onNavigateBack = {},
+            onUpdateNoteText = {},
+            onUpdateRating = {},
+            onToggleFlavor = {},
+            onUpdateFlavorIntensity = { _, _ -> },
+            onSaveNote = {}
+        )
+    }
+}
+
+@Preview(name = "노트 추가 화면 - 저장 중", showBackground = true)
+@Composable
+private fun AddWhiskeyNoteScreenSavingPreview() {
+    MaterialTheme {
+        AddWhiskeyNoteScreenContent(
+            whiskey = mockWhiskey,
+            isSaving = true,
+            noteText = "매끄럽고 달콤한 바닐라와 꿀의 향이 느껴집니다.",
+            rating = 5,
+            selectedFlavors = mapOf(
+                Flavor.VANILLA to 5,
+                Flavor.HONEY to 4,
+                Flavor.WOOD to 3,
+                Flavor.SPICE to 2
+            ),
+            onNavigateBack = {},
+            onUpdateNoteText = {},
+            onUpdateRating = {},
+            onToggleFlavor = {},
+            onUpdateFlavorIntensity = { _, _ -> },
+            onSaveNote = {}
+        )
+    }
+}
+
+@Preview(name = "노트 추가 화면 - 위스키 정보 없음", showBackground = true)
+@Composable
+private fun AddWhiskeyNoteScreenNoWhiskeyPreview() {
+    MaterialTheme {
+        AddWhiskeyNoteScreenContent(
+            whiskey = null,
+            isSaving = false,
+            noteText = "",
+            rating = 0,
+            selectedFlavors = emptyMap(),
+            onNavigateBack = {},
+            onUpdateNoteText = {},
+            onUpdateRating = {},
+            onToggleFlavor = {},
+            onUpdateFlavorIntensity = { _, _ -> },
+            onSaveNote = {}
+        )
     }
 }
