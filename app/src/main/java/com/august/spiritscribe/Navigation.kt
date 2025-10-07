@@ -44,7 +44,7 @@ import com.august.spiritscribe.ui.whiskey.AddWhiskeyNoteScreen
 import com.august.spiritscribe.ui.whiskey.WhiskeyDetailRoute
 import com.august.spiritscribe.ui.social.WhiskeySocialScreen
 import com.august.spiritscribe.ui.feed.FeedScreen
-import com.august.spiritscribe.ui.evolution.EvolutionScreen
+import com.august.spiritscribe.feature.lab.ui.LabScreen
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -101,9 +101,9 @@ sealed class Screen(val route: String) {
         override val label: String = "소셜"
     }
 
-    object Evolution : Screen("flavor_wheel") {
+    object Lab : Screen("lab") {
         override val icon: ImageVector = Icons.Filled.Science
-        override val label: String = "진화"
+        override val label: String = "실험실"
     }
 
     // 상세 화면들
@@ -155,8 +155,8 @@ fun AppNavigation(
                     onWhiskeyClick = {}
                 )
             }
-            composable(Screen.Evolution.route) {
-                EvolutionScreen(
+            composable(Screen.Lab.route) {
+                LabScreen(
                     modifier = Modifier.fillMaxSize()
                 )
             }
@@ -364,7 +364,7 @@ fun BottomNavigationBar(
         val items = listOf(
             Screen.Social,
             Screen.Note,
-            Screen.Evolution,
+            Screen.Lab,
             Screen.Search,
         )
 

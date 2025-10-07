@@ -119,6 +119,9 @@ dependencies {
 
     implementation(libs.androidx.paging.runtime) // For non-Compose parts
     implementation(libs.androidx.paging.compose) // <-- THIS IS NEEDED
+    
+    // Feature modules
+    implementation(project(":feature-lab"))
 }
 
 // Firebase App Distribution 설정

@@ -21,3 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "spiritscribe"
 include(":app")
+include(":feature-lab")
