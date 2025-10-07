@@ -25,6 +25,16 @@ android {
         }
     }
     
+    // 16KB 페이지 크기 지원을 위한 설정
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false
+        }
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
+    
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -57,22 +67,15 @@ dependencies {
     ksp(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
     
-    // CameraX 의존성
+    // ARCore 의존성 (최신 버전)
+    implementation("com.google.ar:core:1.42.0")
+    implementation("io.github.sceneview:arsceneview:0.10.0")
+    
+    // CameraX (AR용 카메라)
     implementation("androidx.camera:camera-core:1.4.0")
     implementation("androidx.camera:camera-camera2:1.4.0")
     implementation("androidx.camera:camera-lifecycle:1.4.0")
-    implementation("androidx.camera:camera-video:1.4.0")
     implementation("androidx.camera:camera-view:1.4.0")
-    implementation("androidx.camera:camera-extensions:1.4.0")
-    
-    // TensorFlow Lite 의존성
-    implementation("org.tensorflow:tensorflow-lite:2.14.0")
-    implementation("org.tensorflow:tensorflow-lite-gpu:2.14.0")
-    implementation("org.tensorflow:tensorflow-lite-support:0.4.4")
-    implementation("org.tensorflow:tensorflow-lite-task-vision:0.4.4")
-    
-    // OpenCV Android SDK
-    implementation("org.opencv:opencv:4.12.0") // 또는 4.9.0 이상 최신 안정판
     
     // 코루틴
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")

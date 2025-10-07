@@ -61,9 +61,9 @@ class LabViewModel @Inject constructor(
     fun onFeatureClick(feature: LabFeature) {
         viewModelScope.launch {
             when (feature) {
-                LabFeature.SWIRL_ART -> {
-                    // 스월 아트 기능 시작
-                    startSwirlArt()
+                LabFeature.AR_MIXER -> {
+                    // AR 하이볼 믹서 기능 시작
+                    startARMixer()
                 }
                 LabFeature.STYLE_TRANSFER -> {
                     // 스타일 전이 기능 시작
@@ -82,12 +82,12 @@ class LabViewModel @Inject constructor(
     }
 
     /**
-     * 스월 아트 기능 시작
+     * AR 하이볼 믹서 기능 시작
      */
-    private fun startSwirlArt() {
-        // TODO: 스월 아트 카메라 화면으로 네비게이션
+    private fun startARMixer() {
+        // TODO: AR 믹서 화면으로 네비게이션
         _labState.value = _labState.value.copy(
-            currentFeature = LabFeature.SWIRL_ART
+            currentFeature = LabFeature.AR_MIXER
         )
     }
 

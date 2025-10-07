@@ -60,6 +60,19 @@ android {
             )
         }
     }
+    
+    // 16KB 페이지 크기 지원을 위한 설정
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false
+        }
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
+    
+    // 16KB 페이지 크기 지원을 위한 네이티브 라이브러리 설정
+    ndkVersion = "25.1.8937393"
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8

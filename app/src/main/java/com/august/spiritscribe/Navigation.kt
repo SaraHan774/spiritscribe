@@ -45,6 +45,7 @@ import com.august.spiritscribe.ui.whiskey.WhiskeyDetailRoute
 import com.august.spiritscribe.ui.social.WhiskeySocialScreen
 import com.august.spiritscribe.ui.feed.FeedScreen
 import com.august.spiritscribe.feature.lab.ui.LabScreen
+import com.august.spiritscribe.feature.lab.ui.ARMixerScreen
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -106,6 +107,11 @@ sealed class Screen(val route: String) {
         override val label: String = "실험실"
     }
 
+    object ARMixer : Screen("ar_mixer") {
+        override val icon: ImageVector = Icons.Filled.Science
+        override val label: String = "AR 믹서"
+    }
+
     // 상세 화면들
     object WhiskeyDetail : Screen("whiskey_detail/{whiskeyId}") {
         fun createRoute(whiskeyId: String) = "whiskey_detail/$whiskeyId"
@@ -157,7 +163,18 @@ fun AppNavigation(
             }
             composable(Screen.Lab.route) {
                 LabScreen(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                    onNavigateToARMixer = {
+                        navController.navigate(Screen.ARMixer.route)
+                    }
+                )
+            }
+            composable(Screen.ARMixer.route) {
+                ARMixerScreen(
+                    modifier = Modifier.fillMaxSize(),
+                    onBack = {
+                        navController.navigateUp()
+                    }
                 )
             }
             composable(

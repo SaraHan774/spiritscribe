@@ -10,12 +10,12 @@ enum class LabFeature(
     val isAvailable: Boolean = true
 ) {
     /**
-     * 스월 아트 - 위스키 잔의 소용돌이를 촬영하여 아트로 변환
+     * AR 하이볼 믹서 - AR로 정확한 비율 라인과 액체 오클루전
      */
-    SWIRL_ART(
-        displayName = "스월 아트",
-        description = "위스키 잔의 소용돌이를 촬영하여 아름다운 아트로 변환",
-        emoji = "🌪️",
+    AR_MIXER(
+        displayName = "AR 하이볼 믹서",
+        description = "AR로 정확한 비율 라인과 액체 오클루전을 제공",
+        emoji = "🥃",
         isAvailable = true
     ),
 

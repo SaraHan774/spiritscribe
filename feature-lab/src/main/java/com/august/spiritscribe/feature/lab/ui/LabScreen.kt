@@ -16,7 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.august.spiritscribe.feature.lab.ui.components.SwirlArtCard
+import com.august.spiritscribe.feature.lab.ui.components.ARMixerCard
 import com.august.spiritscribe.feature.lab.ui.components.LabFeatureCard
 import com.august.spiritscribe.feature.lab.domain.LabFeature
 import com.august.spiritscribe.feature.lab.domain.LabState
@@ -29,11 +29,24 @@ import com.august.spiritscribe.feature.lab.domain.LabState
 @Composable
 fun LabScreen(
     modifier: Modifier = Modifier,
-    viewModel: LabViewModel = hiltViewModel()
+    viewModel: LabViewModel = hiltViewModel(),
+    onNavigateToARMixer: () -> Unit = {}
 ) {
     val labState by viewModel.labState.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
+
+    // 현재 활성화된 기능에 따라 화면 전환
+    LaunchedEffect(labState.currentFeature) {
+        when (labState.currentFeature) {
+            LabFeature.AR_MIXER -> {
+                onNavigateToARMixer()
+            }
+            else -> {
+                // 다른 기능들은 아직 구현되지 않음
+            }
+        }
+    }
 
     Box(
         modifier = modifier.fillMaxSize()
@@ -151,9 +164,9 @@ private fun LabContent(
 
         Spacer(Modifier.height(24.dp))
 
-        // 스월 아트 카드 (메인 기능)
-        SwirlArtCard(
-            onStartSwirlArt = { onFeatureClick(LabFeature.SWIRL_ART) },
+        // AR 하이볼 믹서 카드 (메인 기능)
+        ARMixerCard(
+            onStartARMixer = { onFeatureClick(LabFeature.AR_MIXER) },
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
